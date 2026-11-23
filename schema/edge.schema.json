@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://graph.internal/member-space/v1/edge.schema.json",
+  "title": "资源图谱 · 关系（边）",
+  "description": "二期资源图谱完整版的关系定义（draft 2020-12）。契约要点：(1) 10 类 edge_type 闭合枚举，并用 if/then 约束端点类型；(2) origin=ai 的边必须同时满足 review_status=pending、reviewed_by=null、visibility=private，三者缺一即校验失败——治理规则写进 Schema 而不只是文档；(3) evidence_state=soft_deleted 时 confidence 上限被强制压到 0.5；(4) 图模型不含金额字段。",
+  "type": "object",
+  "required": ["id", "org_id", "source_id", "target_id", "edge_type", "weight", "evidence_ref", "confidence", "origin", "valid_from", "visibility"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^e_[0-9]{3}$",
+      "description": "边 ID，形如 e_001。边可增删（重建图谱时重整），不进入对外引用，对外只引用节点 ID。"
+    },
+    "org_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "集团 ID，与两端节点一致；跨集团边在写入前即被拒绝。"
+    },
+    "source_id": {
+      "$ref": "#/$defs/nodeId",
+      "description": "起点节点 ID。方向约定见文档第 4 节：读作「source 对 target 施加 edge_type」。"
+    },
+    "target_id": {
+      "$ref": "#/$defs/nodeId",
+      "description": "终点节点 ID。"
+    },
+    "edge_type": {
+      "type": "string",
+      "enum": ["works_at", "provides", "needs", "attended", "introduced", "partnered", "tagged_with", "involved_in", "suggested_match", "similar_to"],
+      "description": "关系类型，10 类闭合枚举。新增类型须同步升级 Schema 与文档版本号。"
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "关系强度，闭区间 [0,1]。weight=0 表示关系成立但权重为零（保留证据、不参与排序），不等于删除。"
+    },
+    "evidence_ref": {
+      "$ref": "#/$defs/evidenceRef",
+      "description": "证据引用：来源表 + 记录 ID，ai 边指向模型运行记录。"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "置信度，闭区间 [0,1]。证据记录被软删除时上限压到 0.5（见 evidence_state 约束）。"
+    },
+    "origin": {
+      "type": "string",
+      "enum": ["human", "rule", "ai"],
+      "description": "关系来源：human=人工录入或人工确认，rule=规则推导，ai=模型建议。"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time",
+      "description": "生效时间，半开区间 [valid_from, valid_to) 的左端点。"
+    },
+    "valid_to": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "失效时间，可空；null 表示当前仍有效。右端点不包含在本区间内。"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["org", "site", "private"],
+      "description": "边的可见范围。写入时应取两端节点更严的一侧（private > site > org）；origin=ai 时强制 private。"
+    },
+    "evidence_state": {
+      "type": "string",
+      "enum": ["live", "soft_deleted"],
+      "default": "live",
+      "description": "证据记录状态。soft_deleted 表示 evidence_ref 指向的记录 deleted_at 非空，此时 confidence 上限 0.5 且边进入复查清单。"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "description": "复核状态。仅 origin=ai 的边需要，且必须为 pending；人工确认后 origin 改 human、review_status 改 approved。"
+    },
+    "reviewed_by": {
+      "type": ["string", "null"],
+      "maxLength": 64,
+      "description": "复核人。origin=ai 时必须为 null。"
+    },
+    "reviewed_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "复核时间。origin=ai 时通常为 null。"
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "备注，用于记录冲突裁决等人工说明。"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "required": ["origin"], "properties": { "origin": { "const": "ai" } } },
+      "then": {
+        "required": ["review_status", "reviewed_by"],
+        "properties": {
+          "review_status": { "const": "pending" },
+          "reviewed_by": { "const": null },
+          "visibility": { "const": "private" }
+        }
+      },
+      "else": {
+        "properties": {
+          "review_status": { "enum": ["approved"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "soft_deleted" } }, "required": ["evidence_state"] },
+      "then": {
+        "properties": { "confidence": { "maximum": 0.5 } }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "works_at" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^contact_[0-9]{3}$" },
+          "target_id": { "pattern": "^company_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "provides" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^company_[0-9]{3}$" },
+          "target_id": { "pattern": "^capability_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "needs" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^company_[0-9]{3}$" },
+          "target_id": { "pattern": "^demand_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "attended" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^(contact|company)_[0-9]{3}$" },
+          "target_id": { "pattern": "^event_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "introduced" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^contact_[0-9]{3}$" },
+          "target_id": { "pattern": "^contact_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "partnered" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^company_[0-9]{3}$" },
+          "target_id": { "pattern": "^company_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "tagged_with" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^company_[0-9]{3}$" },
+          "target_id": { "pattern": "^industry_tag_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "involved_in" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^company_[0-9]{3}$" },
+          "target_id": { "pattern": "^opportunity_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "suggested_match" } }, "required": ["edge_type"] },
+      "then": {
+        "properties": {
+          "source_id": { "pattern": "^capability_[0-9]{3}$" },
+          "target_id": { "pattern": "^demand_[0-9]{3}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "edge_type": { "const": "similar_to" } }, "required": ["edge_type"] },
+      "then": {
+        "description": "similar_to 只允许连两端同类型的节点（company↔company … policy↔policy）。",
+        "anyOf": [
+          { "properties": { "source_id": { "pattern": "^company_[0-9]{3}$" }, "target_id": { "pattern": "^company_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^contact_[0-9]{3}$" }, "target_id": { "pattern": "^contact_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^industry_tag_[0-9]{3}$" }, "target_id": { "pattern": "^industry_tag_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^capability_[0-9]{3}$" }, "target_id": { "pattern": "^capability_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^demand_[0-9]{3}$" }, "target_id": { "pattern": "^demand_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^event_[0-9]{3}$" }, "target_id": { "pattern": "^event_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^opportunity_[0-9]{3}$" }, "target_id": { "pattern": "^opportunity_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^expert_[0-9]{3}$" }, "target_id": { "pattern": "^expert_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^site_[0-9]{3}$" }, "target_id": { "pattern": "^site_[0-9]{3}$" } } },
+          { "properties": { "source_id": { "pattern": "^policy_[0-9]{3}$" }, "target_id": { "pattern": "^policy_[0-9]{3}$" } } }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "nodeId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "description": "节点 ID 引用。"
+    },
+    "evidenceRef": {
+      "type": "object",
+      "required": ["source_table", "source_id"],
+      "additionalProperties": false,
+      "properties": {
+        "source_table": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "证据来源表。origin=ai 时为模型运行记录表（如 ai_match_run）。"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "来源记录主键。"
+        },
+        "source_field": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "description": "可选：具体字段（含嵌套路径，用点号）。"
+        }
+      }
+    }
+  }
+}
