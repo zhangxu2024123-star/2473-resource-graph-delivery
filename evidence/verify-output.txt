@@ -1,0 +1,11 @@
+python 3.13.14 / jsonschema 4.26.0
+loaded schema: node.schema.json (2020-12), edge.schema.json (2020-12)
+validating nodes.json ... 30/30 valid
+validating edges.json ... 50/50 valid
+coverage: node_type 10/10, edge_type 10/10, origin {human:28, rule:12, ai:10}
+node_type detail: company:3, contact:3, industry_tag:3, capability:3, demand:3, event:3, opportunity:3, expert:3, site:3, policy:3
+edge_type detail: works_at:5, provides:5, needs:5, attended:5, introduced:5, partnered:5, tagged_with:5, involved_in:5, suggested_match:5, similar_to:5
+source coverage: phase1 18 / new_collection 12
+ai review queue: 10 pending, member-visible ai edges: 0
+referential integrity: 50/50 edges resolved
+RESULT: PASS
