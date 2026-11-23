@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://graph.internal/member-space/v1/node.schema.json",
+  "title": "资源图谱 · 节点",
+  "description": "二期资源图谱完整版的节点定义（draft 2020-12）。10 类 node_type 共用同一外壳，业务字段按 node_type 用 if/then 分支约束。契约要点：(1) id 前缀必须与 node_type 一致；(2) 每个节点必须声明 source_state，phase1 必须给出 source_ref，new_collection 不得给 source_ref，使「一期可得 / 需新采集」可被机器判定；(3) 图模型不含任何金额字段，AI 不产出金额。",
+  "type": "object",
+  "required": ["id", "node_type", "org_id", "site_id", "name", "visibility", "source_state"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "description": "节点 ID，形如 <node_type>_<三位序号>，前缀必须等于 node_type。"
+    },
+    "node_type": {
+      "type": "string",
+      "enum": ["company", "contact", "industry_tag", "capability", "demand", "event", "opportunity", "expert", "site", "policy"],
+      "description": "节点类型，10 类闭合枚举；新增类型须同步升级 Schema 与文档版本号。"
+    },
+    "org_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "集团 ID，多租户隔离边界。"
+    },
+    "site_id": {
+      "type": ["string", "null"],
+      "maxLength": 64,
+      "description": "会所 ID。集团级节点（如公开政策）为 null，此时 visibility 必须为 org。"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "展示名称。样例数据一律使用「示例科技（虚构）」这类明显虚构的命名。"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["org", "site", "private"],
+      "description": "可见范围。org=集团内可见，site=仅本会所，private=仅创建者与授权人。边的可见性取两端更严的一侧（private > site > org），见文档第 7.3 节。"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "一句话摘要，用于检索与图表展示。"
+    },
+    "source_state": {
+      "type": "string",
+      "enum": ["phase1", "new_collection"],
+      "description": "phase1=可由一期已有表字段直接生成；new_collection=一期无来源，需新采集。"
+    },
+    "source_ref": {
+      "$ref": "#/$defs/sourceRef",
+      "description": "一期来源。source_state=phase1 时必填，new_collection 时禁止出现。"
+    },
+    "collection_hint": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "source_state=new_collection 时的建议采集方式（表单字段 / 导入模板列）。"
+    },
+    "industry_tag_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nodeId" },
+      "description": "关联的产业标签节点 ID（company、demand 使用）。"
+    },
+    "member_level": {
+      "type": "string",
+      "enum": ["founding", "standard", "premium", "strategic"],
+      "description": "会员档位（company）。"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": ["prospect", "active", "renewing", "churned"],
+      "description": "会员生命周期阶段（company）。"
+    },
+    "primary_company_id": {
+      "$ref": "#/$defs/nodeId",
+      "description": "主属企业节点 ID（contact）。"
+    },
+    "job_title": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "职位（contact）。"
+    },
+    "tag_code": {
+      "type": "string",
+      "pattern": "^TAG-[A-Z]{2,6}-[0-9]{2}$",
+      "description": "标签业务编码（industry_tag），与一期字典中心保持一致。"
+    },
+    "tag_level": {
+      "type": "integer",
+      "enum": [1, 2, 3],
+      "description": "标签层级，1 为一级产业（industry_tag）。"
+    },
+    "capability_type": {
+      "type": "string",
+      "enum": ["product", "service", "solution"],
+      "description": "能力形态：产品 / 服务 / 整体方案（capability）。"
+    },
+    "maturity": {
+      "type": "string",
+      "enum": ["concept", "pilot", "ga"],
+      "description": "成熟度：概念 / 试点 / 已量产或已交付（capability）。"
+    },
+    "demand_type": {
+      "type": "string",
+      "enum": ["procurement", "cooperation", "talent", "space", "other"],
+      "description": "需求类型（demand）。"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "紧迫度（demand）。"
+    },
+    "starts_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "开始时间（event）。"
+    },
+    "ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "结束时间（event），必须晚于 starts_at。"
+    },
+    "event_format": {
+      "type": "string",
+      "enum": ["offline", "online", "hybrid"],
+      "description": "活动形式（event）。"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["qualifying", "proposal", "negotiation", "won", "lost"],
+      "description": "商机阶段（opportunity）。金额不在图模型中，由业务接口按 id 回查。"
+    },
+    "owner_role": {
+      "type": "string",
+      "enum": ["investment_advisor", "member_manager", "opportunity_manager"],
+      "description": "商机归属岗位角色（opportunity）。"
+    },
+    "expertise_areas": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 40 },
+      "description": "专长领域（expert）。"
+    },
+    "availability": {
+      "type": "string",
+      "enum": ["open", "limited", "closed"],
+      "description": "可对接状态（expert）。"
+    },
+    "site_code": {
+      "type": "string",
+      "pattern": "^SITE-[A-Z]{1,3}[0-9]{2}$",
+      "description": "会所编码（site）。"
+    },
+    "city": {
+      "type": "string",
+      "maxLength": 40,
+      "description": "所在城市（site）。"
+    },
+    "issuing_authority": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "发文机关（policy）。"
+    },
+    "policy_no": {
+      "type": "string",
+      "pattern": "^POL-[0-9]{4}-[0-9]{3}$",
+      "description": "政策文号（policy）。"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date",
+      "description": "政策生效日期（policy）。"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "required": ["source_state"], "properties": { "source_state": { "const": "phase1" } } },
+      "then": { "required": ["source_ref"] },
+      "else": {
+        "required": ["collection_hint"],
+        "not": { "required": ["source_ref"] }
+      }
+    },
+    {
+      "if": { "required": ["site_id"], "properties": { "site_id": { "type": "null" } } },
+      "then": { "properties": { "visibility": { "const": "org" } } }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "company" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["industry_tag_ids", "member_level", "lifecycle_stage"],
+        "properties": { "id": { "pattern": "^company_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "contact" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["primary_company_id", "job_title"],
+        "properties": { "id": { "pattern": "^contact_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "industry_tag" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["tag_code", "tag_level"],
+        "properties": { "id": { "pattern": "^industry_tag_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "capability" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["capability_type", "maturity"],
+        "properties": { "id": { "pattern": "^capability_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "demand" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["demand_type", "urgency", "industry_tag_ids"],
+        "properties": { "id": { "pattern": "^demand_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "event" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["starts_at", "ends_at", "event_format"],
+        "properties": { "id": { "pattern": "^event_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "opportunity" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["stage", "owner_role"],
+        "properties": { "id": { "pattern": "^opportunity_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "expert" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["expertise_areas", "availability"],
+        "properties": { "id": { "pattern": "^expert_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "site" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["site_code", "city"],
+        "properties": { "id": { "pattern": "^site_[0-9]{3}$" } }
+      }
+    },
+    {
+      "if": { "properties": { "node_type": { "const": "policy" } }, "required": ["node_type"] },
+      "then": {
+        "required": ["issuing_authority", "policy_no", "effective_from"],
+        "properties": { "id": { "pattern": "^policy_[0-9]{3}$" } }
+      }
+    }
+  ],
+  "$defs": {
+    "nodeId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "description": "指向另一节点的 ID。"
+    },
+    "sourceRef": {
+      "type": "object",
+      "required": ["source_table", "source_id", "source_fields"],
+      "additionalProperties": false,
+      "properties": {
+        "source_table": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "一期物理表名（snake_case）。"
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "一期记录主键。"
+        },
+        "source_fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "description": "生成本节点用到的字段名列表。"
+        }
+      }
+    }
+  }
+}
