@@ -1,0 +1,597 @@
+[
+  {
+    "id": "company_001",
+    "node_type": "company",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "示例科技（虚构）",
+    "visibility": "org",
+    "summary": "工业软件服务商，虚构示例企业。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_company",
+      "source_id": "cp_1001",
+      "source_fields": [
+        "name",
+        "short_name",
+        "member_level",
+        "lifecycle_stage",
+        "site_id"
+      ]
+    },
+    "industry_tag_ids": [
+      "industry_tag_001",
+      "industry_tag_003"
+    ],
+    "member_level": "premium",
+    "lifecycle_stage": "active"
+  },
+  {
+    "id": "company_002",
+    "node_type": "company",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "示例智造（虚构）",
+    "visibility": "org",
+    "summary": "智能制造装备集成商，虚构示例企业。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_company",
+      "source_id": "cp_1002",
+      "source_fields": [
+        "name",
+        "short_name",
+        "member_level",
+        "lifecycle_stage",
+        "site_id"
+      ]
+    },
+    "industry_tag_ids": [
+      "industry_tag_003",
+      "industry_tag_002"
+    ],
+    "member_level": "strategic",
+    "lifecycle_stage": "active"
+  },
+  {
+    "id": "company_003",
+    "node_type": "company",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "示例绿能（虚构）",
+    "visibility": "org",
+    "summary": "储能系统集成初创企业，虚构示例企业。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_company",
+      "source_id": "cp_1003",
+      "source_fields": [
+        "name",
+        "short_name",
+        "member_level",
+        "lifecycle_stage",
+        "site_id"
+      ]
+    },
+    "industry_tag_ids": [
+      "industry_tag_002"
+    ],
+    "member_level": "standard",
+    "lifecycle_stage": "renewing"
+  },
+  {
+    "id": "contact_001",
+    "node_type": "contact",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "张示例",
+    "visibility": "org",
+    "summary": "示例科技技术负责人，虚构联系人。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1001",
+      "source_fields": [
+        "name",
+        "job_title",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "primary_company_id": "company_001",
+    "job_title": "技术总监"
+  },
+  {
+    "id": "contact_002",
+    "node_type": "contact",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "李样例",
+    "visibility": "org",
+    "summary": "示例智造总经理，虚构联系人。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1002",
+      "source_fields": [
+        "name",
+        "job_title",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "primary_company_id": "company_002",
+    "job_title": "总经理"
+  },
+  {
+    "id": "contact_003",
+    "node_type": "contact",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "王虚构",
+    "visibility": "site",
+    "summary": "示例绿能采购经理，虚构联系人。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1003",
+      "source_fields": [
+        "name",
+        "job_title",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "primary_company_id": "company_003",
+    "job_title": "采购经理"
+  },
+  {
+    "id": "industry_tag_001",
+    "node_type": "industry_tag",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "工业软件",
+    "visibility": "org",
+    "summary": "一级产业下的工业软件细分标签。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "tax_tag",
+      "source_id": "tg_2001",
+      "source_fields": [
+        "code",
+        "name",
+        "level"
+      ]
+    },
+    "tag_code": "TAG-ISW-01",
+    "tag_level": 2
+  },
+  {
+    "id": "industry_tag_002",
+    "node_type": "industry_tag",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "新能源",
+    "visibility": "org",
+    "summary": "一级产业标签：新能源。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "tax_tag",
+      "source_id": "tg_2002",
+      "source_fields": [
+        "code",
+        "name",
+        "level"
+      ]
+    },
+    "tag_code": "TAG-NEE-01",
+    "tag_level": 1
+  },
+  {
+    "id": "industry_tag_003",
+    "node_type": "industry_tag",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "智能制造",
+    "visibility": "org",
+    "summary": "一级产业下的智能制造细分标签。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "tax_tag",
+      "source_id": "tg_2003",
+      "source_fields": [
+        "code",
+        "name",
+        "level"
+      ]
+    },
+    "tag_code": "TAG-IMS-01",
+    "tag_level": 2
+  },
+  {
+    "id": "capability_001",
+    "node_type": "capability",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "数据中台实施服务",
+    "visibility": "org",
+    "summary": "为企业搭建成数据中台，含指标口径梳理与看板交付。",
+    "source_state": "new_collection",
+    "collection_hint": "会员档案「能力清单」表单：能力名称、形态、成熟度、可交付范围、对外联系人",
+    "capability_type": "service",
+    "maturity": "ga"
+  },
+  {
+    "id": "capability_002",
+    "node_type": "capability",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "储能系统集成方案",
+    "visibility": "site",
+    "summary": "面向工商业场景的储能系统设计与集成。",
+    "source_state": "new_collection",
+    "collection_hint": "会员档案「能力清单」表单：方案适用场景、单站容量区间、已交付案例数",
+    "capability_type": "solution",
+    "maturity": "pilot"
+  },
+  {
+    "id": "capability_003",
+    "node_type": "capability",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "精密零部件加工",
+    "visibility": "org",
+    "summary": "小批量精密结构件加工与检测。",
+    "source_state": "new_collection",
+    "collection_hint": "会员档案「能力清单」表单：工艺类型、可加工材料、精度等级、最小批量",
+    "capability_type": "product",
+    "maturity": "ga"
+  },
+  {
+    "id": "demand_001",
+    "node_type": "demand",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "采购 MES 轻量版",
+    "visibility": "org",
+    "summary": "寻找可快速上线的轻量 MES，覆盖工单与质检。",
+    "source_state": "new_collection",
+    "collection_hint": "需求登记表单：需求类型、期望交付时间、预算区间（仅登记口径，不入图模型）、决策人",
+    "industry_tag_ids": [
+      "industry_tag_003"
+    ],
+    "demand_type": "procurement",
+    "urgency": "high"
+  },
+  {
+    "id": "demand_002",
+    "node_type": "demand",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "寻找储能联合投标伙伴",
+    "visibility": "site",
+    "summary": "希望与集成商联合参与园区储能项目投标。",
+    "source_state": "new_collection",
+    "collection_hint": "需求登记表单：合作方式、目标项目类型、可投入资源",
+    "industry_tag_ids": [
+      "industry_tag_002"
+    ],
+    "demand_type": "cooperation",
+    "urgency": "medium"
+  },
+  {
+    "id": "demand_003",
+    "node_type": "demand",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "招聘算法工程师 2 名",
+    "visibility": "org",
+    "summary": "补充推荐算法与数据挖掘方向工程师。",
+    "source_state": "new_collection",
+    "collection_hint": "需求登记表单：岗位、人数、到岗时间、用人部门",
+    "industry_tag_ids": [
+      "industry_tag_001"
+    ],
+    "demand_type": "talent",
+    "urgency": "low"
+  },
+  {
+    "id": "event_001",
+    "node_type": "event",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "秋季产业对接会",
+    "visibility": "org",
+    "summary": "面向会员企业的秋季线下对接会。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "event",
+      "source_id": "ev_3001",
+      "source_fields": [
+        "title",
+        "starts_at",
+        "ends_at",
+        "format",
+        "site_id"
+      ]
+    },
+    "starts_at": "2026-09-18T13:30:00+08:00",
+    "ends_at": "2026-09-18T17:30:00+08:00",
+    "event_format": "offline"
+  },
+  {
+    "id": "event_002",
+    "node_type": "event",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "新能源产业沙龙",
+    "visibility": "site",
+    "summary": "小范围闭门沙龙，聚焦储能与并网。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "event",
+      "source_id": "ev_3002",
+      "source_fields": [
+        "title",
+        "starts_at",
+        "ends_at",
+        "format",
+        "site_id"
+      ]
+    },
+    "starts_at": "2026-10-16T14:00:00+08:00",
+    "ends_at": "2026-10-16T16:30:00+08:00",
+    "event_format": "offline"
+  },
+  {
+    "id": "event_003",
+    "node_type": "event",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "会员开放日（线上）",
+    "visibility": "org",
+    "summary": "线上开放日，跨会所可参加。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "event",
+      "source_id": "ev_3003",
+      "source_fields": [
+        "title",
+        "starts_at",
+        "ends_at",
+        "format"
+      ]
+    },
+    "starts_at": "2026-11-06T10:00:00+08:00",
+    "ends_at": "2026-11-06T11:30:00+08:00",
+    "event_format": "online"
+  },
+  {
+    "id": "opportunity_001",
+    "node_type": "opportunity",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "示例智造扩租洽谈",
+    "visibility": "org",
+    "summary": "现有 12 个工位扩至 20 个的扩租商机（金额不入图模型）。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4001",
+      "source_fields": [
+        "title",
+        "stage",
+        "owner_role",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "stage": "negotiation",
+    "owner_role": "investment_advisor"
+  },
+  {
+    "id": "opportunity_002",
+    "node_type": "opportunity",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "储能联合方案合作",
+    "visibility": "site",
+    "summary": "两家会员企业联合承接园区储能项目的合作商机。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4002",
+      "source_fields": [
+        "title",
+        "stage",
+        "owner_role",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "stage": "proposal",
+    "owner_role": "opportunity_manager"
+  },
+  {
+    "id": "opportunity_003",
+    "node_type": "opportunity",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "示例科技会员升级",
+    "visibility": "org",
+    "summary": "由 premium 升级至 strategic 的会籍升级商机。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4003",
+      "source_fields": [
+        "title",
+        "stage",
+        "owner_role",
+        "company_id",
+        "site_id"
+      ]
+    },
+    "stage": "qualifying",
+    "owner_role": "member_manager"
+  },
+  {
+    "id": "expert_001",
+    "node_type": "expert",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "陈示例",
+    "visibility": "org",
+    "summary": "工业软件与制造执行领域顾问，虚构专家。",
+    "source_state": "new_collection",
+    "collection_hint": "专家档案表单：专长领域、可服务形式、是否愿意对外露出（决定 visibility）",
+    "expertise_areas": [
+      "工业软件",
+      "制造执行 MES",
+      "工厂数字化"
+    ],
+    "availability": "open"
+  },
+  {
+    "id": "expert_002",
+    "node_type": "expert",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "赵样例",
+    "visibility": "private",
+    "summary": "储能与电力电子领域顾问，仅本人与授权人可见。",
+    "source_state": "new_collection",
+    "collection_hint": "专家档案表单：专长领域、可服务形式、是否愿意对外露出（决定 visibility）",
+    "expertise_areas": [
+      "储能系统",
+      "电力电子",
+      "并网合规"
+    ],
+    "availability": "limited"
+  },
+  {
+    "id": "expert_003",
+    "node_type": "expert",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "周虚构",
+    "visibility": "org",
+    "summary": "供应链与跨境物流顾问，虚构专家。",
+    "source_state": "new_collection",
+    "collection_hint": "专家档案表单：专长领域、可服务形式、是否愿意对外露出（决定 visibility）",
+    "expertise_areas": [
+      "供应链",
+      "跨境物流",
+      "关务合规"
+    ],
+    "availability": "open"
+  },
+  {
+    "id": "site_001",
+    "node_type": "site",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_a",
+    "name": "示例会所·A 座",
+    "visibility": "org",
+    "summary": "旗舰会所，虚构场地。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "iam_site",
+      "source_id": "st_5001",
+      "source_fields": [
+        "code",
+        "name",
+        "city",
+        "site_id"
+      ]
+    },
+    "site_code": "SITE-A01",
+    "city": "上海"
+  },
+  {
+    "id": "site_002",
+    "node_type": "site",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_b",
+    "name": "示例会所·B 座",
+    "visibility": "org",
+    "summary": "产业主题会所，虚构场地。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "iam_site",
+      "source_id": "st_5002",
+      "source_fields": [
+        "code",
+        "name",
+        "city",
+        "site_id"
+      ]
+    },
+    "site_code": "SITE-B01",
+    "city": "上海"
+  },
+  {
+    "id": "site_003",
+    "node_type": "site",
+    "org_id": "org_demo01",
+    "site_id": "site_demo_c",
+    "name": "示例会所·C 座",
+    "visibility": "org",
+    "summary": "异地复制会所，虚构场地。",
+    "source_state": "phase1",
+    "source_ref": {
+      "source_table": "iam_site",
+      "source_id": "st_5003",
+      "source_fields": [
+        "code",
+        "name",
+        "city",
+        "site_id"
+      ]
+    },
+    "site_code": "SITE-C01",
+    "city": "苏州"
+  },
+  {
+    "id": "policy_001",
+    "node_type": "policy",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "产业扶持资金申报指南",
+    "visibility": "org",
+    "summary": "虚构政策摘要，用于图谱演示。",
+    "source_state": "new_collection",
+    "collection_hint": "政策库导入模板列：发文机关、文号、生效日期、适用产业、申报截止、原文链接",
+    "issuing_authority": "示例区产业发展局",
+    "policy_no": "POL-2026-001",
+    "effective_from": "2026-03-01"
+  },
+  {
+    "id": "policy_002",
+    "node_type": "policy",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "高新技术企业认定要点",
+    "visibility": "org",
+    "summary": "虚构政策摘要，用于图谱演示。",
+    "source_state": "new_collection",
+    "collection_hint": "政策库导入模板列：发文机关、文号、生效日期、适用产业、申报截止、原文链接",
+    "issuing_authority": "示例市科技局",
+    "policy_no": "POL-2026-002",
+    "effective_from": "2026-05-15"
+  },
+  {
+    "id": "policy_003",
+    "node_type": "policy",
+    "org_id": "org_demo01",
+    "site_id": null,
+    "name": "数据合规指引（摘要）",
+    "visibility": "org",
+    "summary": "虚构政策摘要，强调数据不出境与最小必要。",
+    "source_state": "new_collection",
+    "collection_hint": "政策库导入模板列：发文机关、文号、生效日期、适用产业、申报截止、原文链接",
+    "issuing_authority": "示例市数据局",
+    "policy_no": "POL-2025-014",
+    "effective_from": "2025-12-01"
+  }
+]
