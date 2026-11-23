@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="Microsoft YaHei, PingFang SC, Segoe UI, sans-serif">
+  <defs>
+    <marker id="arrow-human" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrow-rule" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0D9488"/>
+    </marker>
+    <marker id="arrow-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#D97706"/>
+    </marker>
+    <filter id="cardShadow" x="-10%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="1000" fill="#F8FAFC"/>
+
+  <text x="60" y="62" font-size="26" font-weight="700" fill="#0F172A">资源图谱 · 节点与关系类型总览</text>
+  <text x="60" y="92" font-size="14" fill="#64748B">二期「资源图谱完整版」图模型 v1.0 ｜ 10 类节点 / 10 类关系 ｜ 示意用虚构数据，不代表真实会员信息</text>
+
+  <!-- ================= 边（先画，压在卡片下方） ================= -->
+  <!-- attended: contact -> event -->
+  <line x1="250" y1="416" x2="250" y2="278" stroke="#0D9488" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#arrow-rule)"/>
+  <text x="262" y="352" font-size="13" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">attended · 0.9 · rule</text>
+
+  <!-- works_at: contact -> company -->
+  <line x1="362" y1="466" x2="464" y2="466" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="413" y="450" font-size="13" text-anchor="middle" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">works_at</text>
+  <text x="413" y="490" font-size="11" text-anchor="middle" fill="#64748B" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">0.9 · human</text>
+
+  <!-- introduced: contact 自环 -->
+  <path d="M 200 516 C 200 574 300 574 300 516" fill="none" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="250" y="600" font-size="13" text-anchor="middle" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">introduced</text>
+  <text x="250" y="618" font-size="11" text-anchor="middle" fill="#64748B" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">联系人之间引荐</text>
+
+  <!-- provides: company -> capability -->
+  <line x1="622" y1="418" x2="786" y2="298" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="628" y="318" font-size="13" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">provides · human</text>
+
+  <!-- needs: company -> demand -->
+  <line x1="622" y1="514" x2="786" y2="640" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="640" y="600" font-size="13" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">needs · human</text>
+
+  <!-- partnered: company 自环 -->
+  <path d="M 520 516 C 520 578 646 578 646 516" fill="none" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="583" y="606" font-size="13" text-anchor="middle" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">partnered</text>
+  <text x="583" y="624" font-size="11" text-anchor="middle" fill="#64748B" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">企业之间合作</text>
+
+  <!-- tagged_with: company -> industry_tag -->
+  <line x1="692" y1="446" x2="1084" y2="328" stroke="#0D9488" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#arrow-rule)"/>
+  <text x="800" y="374" font-size="13" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">tagged_with · rule</text>
+
+  <!-- involved_in: company -> opportunity -->
+  <line x1="692" y1="492" x2="1084" y2="552" stroke="#0D9488" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#arrow-rule)"/>
+  <text x="800" y="482" font-size="13" fill="#0F172A" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">involved_in · rule</text>
+
+  <!-- suggested_match: capability -> demand（AI 虚线） -->
+  <path d="M 1014 252 C 1072 372 1072 540 1014 656" fill="none" stroke="#D97706" stroke-width="2.4" stroke-dasharray="4 6" marker-end="url(#arrow-ai)"/>
+  <line x1="1014" y1="660" x2="1014" y2="716" stroke="#D97706" stroke-width="1.4" stroke-dasharray="3 4"/>
+  <text x="1026" y="734" font-size="13" fill="#B45309" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">suggested_match · ai（待复核）</text>
+
+  <!-- similar_to: industry_tag 自环（AI） -->
+  <path d="M 1218 296 C 1218 244 1302 244 1302 296" fill="none" stroke="#D97706" stroke-width="2.4" stroke-dasharray="4 6" marker-end="url(#arrow-ai)"/>
+  <text x="1260" y="234" font-size="13" text-anchor="middle" fill="#B45309" paint-order="stroke" stroke="#F8FAFC" stroke-width="6">similar_to · ai（待复核）</text>
+
+  <!-- ================= 节点卡片 ================= -->
+  <!-- event -->
+  <g filter="url(#cardShadow)">
+    <rect x="140" y="180" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="140" y="180" width="6" height="92" rx="3" fill="#7C3AED"/>
+  </g>
+  <text x="162" y="214" font-size="17" font-weight="700" fill="#0F172A">活动</text>
+  <text x="162" y="236" font-size="12" fill="#64748B" font-family="Consolas, monospace">event</text>
+  <text x="162" y="256" font-size="12" fill="#475569">场次、时间与形式</text>
+
+  <!-- contact -->
+  <g filter="url(#cardShadow)">
+    <rect x="140" y="420" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="140" y="420" width="6" height="92" rx="3" fill="#2563EB"/>
+  </g>
+  <text x="162" y="454" font-size="17" font-weight="700" fill="#0F172A">联系人</text>
+  <text x="162" y="476" font-size="12" fill="#64748B" font-family="Consolas, monospace">contact</text>
+  <text x="162" y="496" font-size="12" fill="#475569">主属企业、职位</text>
+
+  <!-- expert -->
+  <g filter="url(#cardShadow)">
+    <rect x="140" y="660" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="140" y="660" width="6" height="92" rx="3" fill="#2563EB"/>
+  </g>
+  <text x="162" y="694" font-size="17" font-weight="700" fill="#0F172A">专家</text>
+  <text x="162" y="716" font-size="12" fill="#64748B" font-family="Consolas, monospace">expert</text>
+  <text x="162" y="736" font-size="12" fill="#475569">专长领域、可对接性 ｜ 需新采集</text>
+
+  <!-- company -->
+  <g filter="url(#cardShadow)">
+    <rect x="470" y="420" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="470" y="420" width="6" height="92" rx="3" fill="#2563EB"/>
+  </g>
+  <text x="492" y="454" font-size="17" font-weight="700" fill="#0F172A">会员企业</text>
+  <text x="492" y="476" font-size="12" fill="#64748B" font-family="Consolas, monospace">company</text>
+  <text x="492" y="496" font-size="12" fill="#475569">会员档位、生命周期</text>
+
+  <!-- site -->
+  <g filter="url(#cardShadow)">
+    <rect x="470" y="660" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="470" y="660" width="6" height="92" rx="3" fill="#2563EB"/>
+  </g>
+  <text x="492" y="694" font-size="17" font-weight="700" fill="#0F172A">会所</text>
+  <text x="492" y="716" font-size="12" fill="#64748B" font-family="Consolas, monospace">site</text>
+  <text x="492" y="736" font-size="12" fill="#475569">编码、城市</text>
+
+  <!-- capability -->
+  <g filter="url(#cardShadow)">
+    <rect x="790" y="200" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="790" y="200" width="6" height="92" rx="3" fill="#0D9488"/>
+  </g>
+  <text x="812" y="234" font-size="17" font-weight="700" fill="#0F172A">能力</text>
+  <text x="812" y="256" font-size="12" fill="#64748B" font-family="Consolas, monospace">capability</text>
+  <text x="812" y="276" font-size="12" fill="#475569">形态、成熟度 ｜ 需新采集</text>
+
+  <!-- demand -->
+  <g filter="url(#cardShadow)">
+    <rect x="790" y="620" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="790" y="620" width="6" height="92" rx="3" fill="#0D9488"/>
+  </g>
+  <text x="812" y="654" font-size="17" font-weight="700" fill="#0F172A">需求</text>
+  <text x="812" y="676" font-size="12" fill="#64748B" font-family="Consolas, monospace">demand</text>
+  <text x="812" y="696" font-size="12" fill="#475569">类型、紧迫度 ｜ 需新采集</text>
+
+  <!-- industry_tag -->
+  <g filter="url(#cardShadow)">
+    <rect x="1090" y="300" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="1090" y="300" width="6" height="92" rx="3" fill="#0D9488"/>
+  </g>
+  <text x="1112" y="334" font-size="17" font-weight="700" fill="#0F172A">产业标签</text>
+  <text x="1112" y="356" font-size="12" fill="#64748B" font-family="Consolas, monospace">industry_tag</text>
+  <text x="1112" y="376" font-size="12" fill="#475569">编码、层级</text>
+
+  <!-- opportunity -->
+  <g filter="url(#cardShadow)">
+    <rect x="1090" y="520" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="1090" y="520" width="6" height="92" rx="3" fill="#7C3AED"/>
+  </g>
+  <text x="1112" y="554" font-size="17" font-weight="700" fill="#0F172A">商机</text>
+  <text x="1112" y="576" font-size="12" fill="#64748B" font-family="Consolas, monospace">opportunity</text>
+  <text x="1112" y="596" font-size="12" fill="#475569">阶段、归属岗位（不含金额）</text>
+
+  <!-- policy -->
+  <g filter="url(#cardShadow)">
+    <rect x="1350" y="620" width="220" height="92" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
+    <rect x="1350" y="760" width="6" height="92" rx="3" fill="#B45309"/>
+  </g>
+  <text x="1372" y="654" font-size="17" font-weight="700" fill="#0F172A">公开政策</text>
+  <text x="1372" y="676" font-size="12" fill="#64748B" font-family="Consolas, monospace">policy</text>
+  <text x="1372" y="696" font-size="12" fill="#475569">发文机关、文号 ｜ 需新采集</text>
+
+  <!-- 说明备注 -->
+  <text x="470" y="776" font-size="12" fill="#64748B">会所不单独建边：company.site_id 已表达归属（见文档 §4.9）</text>
+  <text x="1350" y="736" font-size="12" fill="#64748B">本期 10 类关系未覆盖政策节点，</text>
+  <text x="1350" y="756" font-size="12" fill="#64748B">v1.1 拟增 related_to（见文档 §9.2）</text>
+
+  <!-- ================= 图例 ================= -->
+  <rect x="60" y="840" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text x="80" y="868" font-size="13" font-weight="700" fill="#0F172A">线型图例（origin）</text>
+
+  <line x1="80" y1="890" x2="140" y2="890" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrow-human)"/>
+  <text x="150" y="894" font-size="12" fill="#334155">human 人工录入 / 人工确认</text>
+
+  <line x1="80" y1="914" x2="140" y2="914" stroke="#0D9488" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#arrow-rule)"/>
+  <text x="150" y="918" font-size="12" fill="#334155">rule 规则推导</text>
+
+  <line x1="80" y1="938" x2="140" y2="938" stroke="#D97706" stroke-width="2.4" stroke-dasharray="4 6" marker-end="url(#arrow-ai)"/>
+  <text x="150" y="942" font-size="12" fill="#334155">ai 模型建议（待复核，不进会员端）</text>
+
+  <!-- ================= 治理提示 ================= -->
+  <rect x="960" y="840" width="610" height="120" rx="12" fill="#FFFBEB" stroke="#FCD34D"/>
+  <text x="980" y="868" font-size="13" font-weight="700" fill="#92400E">治理约束（由 Schema 强制，不只是文档约定）</text>
+  <text x="980" y="892" font-size="12" fill="#78350F">origin=ai ⇒ review_status=pending ∧ reviewed_by=null ∧ visibility=private</text>
+  <text x="980" y="914" font-size="12" fill="#78350F">人工确认前：不进会员端检索、不进推荐、不对外发送；确认后 origin 改为 human</text>
+  <text x="980" y="936" font-size="12" fill="#78350F">边可见性取两端更严一侧（private &gt; site &gt; org）；图模型不含任何金额字段</text>
+</svg>
