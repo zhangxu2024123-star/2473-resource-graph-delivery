@@ -1,0 +1,913 @@
+[
+  {
+    "id": "e_001",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "company_001",
+    "edge_type": "works_at",
+    "weight": 0.9,
+    "evidence_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1001",
+      "source_field": "company_id"
+    },
+    "confidence": 0.95,
+    "origin": "human",
+    "valid_from": "2022-03-01T00:00:00+08:00",
+    "valid_to": "2025-03-01T00:00:00+08:00",
+    "visibility": "org"
+  },
+  {
+    "id": "e_002",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "company_002",
+    "edge_type": "works_at",
+    "weight": 0.9,
+    "evidence_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1001",
+      "source_field": "company_id"
+    },
+    "confidence": 0.95,
+    "origin": "human",
+    "valid_from": "2025-03-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org",
+    "note": "与 e_001 为同一联系人的先后两段任职，区间不重叠；当前态取 valid_from 较晚者。"
+  },
+  {
+    "id": "e_003",
+    "org_id": "org_demo01",
+    "source_id": "contact_002",
+    "target_id": "company_002",
+    "edge_type": "works_at",
+    "weight": 0.95,
+    "evidence_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1002",
+      "source_field": "company_id"
+    },
+    "confidence": 0.97,
+    "origin": "human",
+    "valid_from": "2019-06-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_004",
+    "org_id": "org_demo01",
+    "source_id": "contact_003",
+    "target_id": "company_003",
+    "edge_type": "works_at",
+    "weight": 0.85,
+    "evidence_ref": {
+      "source_table": "crm_contact",
+      "source_id": "ct_1003",
+      "source_field": "company_id"
+    },
+    "confidence": 0.9,
+    "origin": "human",
+    "valid_from": "2023-01-15T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_005",
+    "org_id": "org_demo01",
+    "source_id": "contact_003",
+    "target_id": "company_001",
+    "edge_type": "works_at",
+    "weight": 0.4,
+    "evidence_ref": {
+      "source_table": "event_registration",
+      "source_id": "er_3001",
+      "source_field": "company_name"
+    },
+    "confidence": 0.5,
+    "origin": "rule",
+    "valid_from": "2024-05-01T00:00:00+08:00",
+    "valid_to": "2025-04-30T23:59:59+08:00",
+    "visibility": "site",
+    "note": "由活动报名表填写的公司名匹配而来，未经人工确认，权重较低。"
+  },
+  {
+    "id": "e_006",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "capability_001",
+    "edge_type": "provides",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "crm_company",
+      "source_id": "cp_1001"
+    },
+    "confidence": 0.85,
+    "origin": "human",
+    "valid_from": "2026-04-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_007",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "capability_002",
+    "edge_type": "provides",
+    "weight": 0.7,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4001",
+      "source_field": "summary"
+    },
+    "confidence": 0.8,
+    "origin": "human",
+    "valid_from": "2026-06-10T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_008",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "capability_003",
+    "edge_type": "provides",
+    "weight": 0.85,
+    "evidence_ref": {
+      "source_table": "crm_company",
+      "source_id": "cp_1003"
+    },
+    "confidence": 0.88,
+    "origin": "human",
+    "valid_from": "2026-02-20T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_009",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "capability_003",
+    "edge_type": "provides",
+    "weight": 0.6,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4002",
+      "source_field": "summary"
+    },
+    "confidence": 0.75,
+    "origin": "human",
+    "valid_from": "2026-07-05T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_010",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "capability_002",
+    "edge_type": "provides",
+    "weight": 0.35,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4003",
+      "source_field": "summary"
+    },
+    "confidence": 0.45,
+    "origin": "rule",
+    "valid_from": "2026-08-12T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site",
+    "note": "纪要关键词命中「储能」，规则推导，待招商顾问复核。"
+  },
+  {
+    "id": "e_011",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "demand_001",
+    "edge_type": "needs",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4004",
+      "source_field": "summary"
+    },
+    "confidence": 0.85,
+    "origin": "human",
+    "valid_from": "2026-08-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_012",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "demand_002",
+    "edge_type": "needs",
+    "weight": 0.75,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4005",
+      "source_field": "summary"
+    },
+    "confidence": 0.82,
+    "origin": "human",
+    "valid_from": "2026-09-02T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_013",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "demand_003",
+    "edge_type": "needs",
+    "weight": 0.6,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4006",
+      "source_field": "summary"
+    },
+    "confidence": 0.7,
+    "origin": "human",
+    "valid_from": "2026-09-20T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_014",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "demand_002",
+    "edge_type": "needs",
+    "weight": 0.5,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4007",
+      "source_field": "summary"
+    },
+    "confidence": 0.65,
+    "origin": "human",
+    "valid_from": "2026-09-25T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_015",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "demand_001",
+    "edge_type": "needs",
+    "weight": 0.3,
+    "evidence_ref": {
+      "source_table": "event_registration",
+      "source_id": "er_3002",
+      "source_field": "remark"
+    },
+    "confidence": 0.42,
+    "origin": "rule",
+    "valid_from": "2026-10-16T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site",
+    "note": "由报名表备注「想了解 MES」规则推导，未经确认。"
+  },
+  {
+    "id": "e_016",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "event_001",
+    "edge_type": "attended",
+    "weight": 0.9,
+    "evidence_ref": {
+      "source_table": "event_registration",
+      "source_id": "er_3001"
+    },
+    "confidence": 0.95,
+    "origin": "human",
+    "valid_from": "2026-09-18T13:30:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_017",
+    "org_id": "org_demo01",
+    "source_id": "contact_002",
+    "target_id": "event_001",
+    "edge_type": "attended",
+    "weight": 0.9,
+    "evidence_ref": {
+      "source_table": "event_checkin",
+      "source_id": "ck_3001",
+      "source_field": "checked_at"
+    },
+    "confidence": 0.9,
+    "origin": "rule",
+    "valid_from": "2026-09-18T13:35:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_018",
+    "org_id": "org_demo01",
+    "source_id": "contact_003",
+    "target_id": "event_002",
+    "edge_type": "attended",
+    "weight": 0.85,
+    "evidence_ref": {
+      "source_table": "event_checkin",
+      "source_id": "ck_3002",
+      "source_field": "checked_at"
+    },
+    "confidence": 0.88,
+    "origin": "rule",
+    "valid_from": "2026-10-16T14:02:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_019",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "event_002",
+    "edge_type": "attended",
+    "weight": 0.6,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4008",
+      "source_field": "occurred_at"
+    },
+    "confidence": 0.7,
+    "origin": "human",
+    "valid_from": "2026-10-16T14:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_020",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "event_003",
+    "edge_type": "attended",
+    "weight": 0.7,
+    "evidence_ref": {
+      "source_table": "event_registration",
+      "source_id": "er_3003"
+    },
+    "confidence": 0.8,
+    "origin": "rule",
+    "valid_from": "2026-11-06T10:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_021",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "contact_002",
+    "edge_type": "introduced",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4009",
+      "source_field": "summary"
+    },
+    "confidence": 0.85,
+    "origin": "human",
+    "valid_from": "2026-05-20T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_022",
+    "org_id": "org_demo01",
+    "source_id": "contact_002",
+    "target_id": "contact_003",
+    "edge_type": "introduced",
+    "weight": 0.75,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4010",
+      "source_field": "summary"
+    },
+    "confidence": 0.82,
+    "origin": "human",
+    "valid_from": "2026-06-18T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_023",
+    "org_id": "org_demo01",
+    "source_id": "contact_003",
+    "target_id": "contact_001",
+    "edge_type": "introduced",
+    "weight": 0.6,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4011",
+      "source_field": "summary"
+    },
+    "confidence": 0.72,
+    "origin": "human",
+    "valid_from": "2026-07-22T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_024",
+    "org_id": "org_demo01",
+    "source_id": "contact_001",
+    "target_id": "contact_003",
+    "edge_type": "introduced",
+    "weight": 0.5,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4012",
+      "source_field": "summary"
+    },
+    "confidence": 0.4,
+    "origin": "human",
+    "valid_from": "2026-08-30T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site",
+    "evidence_state": "soft_deleted",
+    "note": "证据纪要已被软删除：边保留、confidence 降至 0.4 并列入复查清单。"
+  },
+  {
+    "id": "e_025",
+    "org_id": "org_demo01",
+    "source_id": "contact_002",
+    "target_id": "contact_001",
+    "edge_type": "introduced",
+    "weight": 0.55,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4013",
+      "source_field": "summary"
+    },
+    "confidence": 0.68,
+    "origin": "human",
+    "valid_from": "2026-09-12T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_026",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "company_002",
+    "edge_type": "partnered",
+    "weight": 0.7,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4014",
+      "source_field": "summary"
+    },
+    "confidence": 0.8,
+    "origin": "human",
+    "valid_from": "2026-03-15T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_027",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "company_003",
+    "edge_type": "partnered",
+    "weight": 0.65,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4015",
+      "source_field": "summary"
+    },
+    "confidence": 0.78,
+    "origin": "human",
+    "valid_from": "2026-07-08T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_028",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "company_003",
+    "edge_type": "partnered",
+    "weight": 0.55,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4016",
+      "source_field": "summary"
+    },
+    "confidence": 0.7,
+    "origin": "human",
+    "valid_from": "2026-08-19T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_029",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "company_001",
+    "edge_type": "partnered",
+    "weight": 0.6,
+    "evidence_ref": {
+      "source_table": "crm_contract",
+      "source_id": "ct_6001",
+      "source_field": "contract_no"
+    },
+    "confidence": 0.85,
+    "origin": "human",
+    "valid_from": "2026-04-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org",
+    "note": "方向取「发起方 → 承接方」，与 e_026 互为反向，表示同一合作的两个视角。"
+  },
+  {
+    "id": "e_030",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "company_001",
+    "edge_type": "partnered",
+    "weight": 0.3,
+    "evidence_ref": {
+      "source_table": "crm_contract",
+      "source_id": "ct_6002",
+      "source_field": "party_b_name"
+    },
+    "confidence": 0.44,
+    "origin": "rule",
+    "valid_from": "2026-09-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site",
+    "note": "由合同乙方名称规则匹配，待确认。"
+  },
+  {
+    "id": "e_031",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "industry_tag_001",
+    "edge_type": "tagged_with",
+    "weight": 1.0,
+    "evidence_ref": {
+      "source_table": "crm_company_tag",
+      "source_id": "cpt_7001"
+    },
+    "confidence": 0.98,
+    "origin": "rule",
+    "valid_from": "2026-01-10T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_032",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "industry_tag_003",
+    "edge_type": "tagged_with",
+    "weight": 1.0,
+    "evidence_ref": {
+      "source_table": "crm_company_tag",
+      "source_id": "cpt_7002"
+    },
+    "confidence": 0.98,
+    "origin": "rule",
+    "valid_from": "2026-01-10T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_033",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "industry_tag_003",
+    "edge_type": "tagged_with",
+    "weight": 1.0,
+    "evidence_ref": {
+      "source_table": "crm_company_tag",
+      "source_id": "cpt_7003"
+    },
+    "confidence": 0.98,
+    "origin": "human",
+    "valid_from": "2026-01-10T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_034",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "industry_tag_002",
+    "edge_type": "tagged_with",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "tax_tag_relation",
+      "source_id": "tr_7001",
+      "source_field": "confidence"
+    },
+    "confidence": 0.9,
+    "origin": "human",
+    "valid_from": "2026-02-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org",
+    "note": "母子标签继承：智能制造与新能源的人工确认关联。"
+  },
+  {
+    "id": "e_035",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "industry_tag_002",
+    "edge_type": "tagged_with",
+    "weight": 1.0,
+    "evidence_ref": {
+      "source_table": "crm_company_tag",
+      "source_id": "cpt_7004"
+    },
+    "confidence": 0.98,
+    "origin": "rule",
+    "valid_from": "2026-01-10T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_036",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "opportunity_001",
+    "edge_type": "involved_in",
+    "weight": 0.85,
+    "evidence_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4001",
+      "source_field": "company_id"
+    },
+    "confidence": 0.9,
+    "origin": "human",
+    "valid_from": "2026-09-01T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_037",
+    "org_id": "org_demo01",
+    "source_id": "company_002",
+    "target_id": "opportunity_002",
+    "edge_type": "involved_in",
+    "weight": 0.7,
+    "evidence_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4002",
+      "source_field": "company_id"
+    },
+    "confidence": 0.85,
+    "origin": "human",
+    "valid_from": "2026-09-18T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_038",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "opportunity_003",
+    "edge_type": "involved_in",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "crm_opportunity",
+      "source_id": "op_4003",
+      "source_field": "company_id"
+    },
+    "confidence": 0.88,
+    "origin": "human",
+    "valid_from": "2026-10-08T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "org"
+  },
+  {
+    "id": "e_039",
+    "org_id": "org_demo01",
+    "source_id": "company_003",
+    "target_id": "opportunity_002",
+    "edge_type": "involved_in",
+    "weight": 0.5,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4017",
+      "source_field": "summary"
+    },
+    "confidence": 0.6,
+    "origin": "rule",
+    "valid_from": "2026-10-20T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_040",
+    "org_id": "org_demo01",
+    "source_id": "company_001",
+    "target_id": "opportunity_002",
+    "edge_type": "involved_in",
+    "weight": 0.4,
+    "evidence_ref": {
+      "source_table": "crm_interaction",
+      "source_id": "it_4018",
+      "source_field": "summary"
+    },
+    "confidence": 0.5,
+    "origin": "rule",
+    "valid_from": "2026-10-25T00:00:00+08:00",
+    "valid_to": null,
+    "visibility": "site"
+  },
+  {
+    "id": "e_041",
+    "org_id": "org_demo01",
+    "source_id": "capability_001",
+    "target_id": "demand_001",
+    "edge_type": "suggested_match",
+    "weight": 0.72,
+    "evidence_ref": {
+      "source_table": "ai_match_run",
+      "source_id": "run_20261120_01"
+    },
+    "confidence": 0.66,
+    "origin": "ai",
+    "valid_from": "2026-11-20T02:10:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_042",
+    "org_id": "org_demo01",
+    "source_id": "capability_002",
+    "target_id": "demand_002",
+    "edge_type": "suggested_match",
+    "weight": 0.81,
+    "evidence_ref": {
+      "source_table": "ai_match_run",
+      "source_id": "run_20261120_01"
+    },
+    "confidence": 0.74,
+    "origin": "ai",
+    "valid_from": "2026-11-20T02:10:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_043",
+    "org_id": "org_demo01",
+    "source_id": "capability_003",
+    "target_id": "demand_001",
+    "edge_type": "suggested_match",
+    "weight": 0.58,
+    "evidence_ref": {
+      "source_table": "ai_match_run",
+      "source_id": "run_20261120_02"
+    },
+    "confidence": 0.52,
+    "origin": "ai",
+    "valid_from": "2026-11-20T02:40:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_044",
+    "org_id": "org_demo01",
+    "source_id": "capability_001",
+    "target_id": "demand_003",
+    "edge_type": "suggested_match",
+    "weight": 0.35,
+    "evidence_ref": {
+      "source_table": "ai_match_run",
+      "source_id": "run_20261120_02"
+    },
+    "confidence": 0.44,
+    "origin": "ai",
+    "valid_from": "2026-11-20T02:40:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_045",
+    "org_id": "org_demo01",
+    "source_id": "capability_002",
+    "target_id": "demand_001",
+    "edge_type": "suggested_match",
+    "weight": 0.4,
+    "evidence_ref": {
+      "source_table": "ai_match_run",
+      "source_id": "run_20261120_03"
+    },
+    "confidence": 0.38,
+    "origin": "ai",
+    "valid_from": "2026-11-21T02:05:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_046",
+    "org_id": "org_demo01",
+    "source_id": "industry_tag_001",
+    "target_id": "industry_tag_003",
+    "edge_type": "similar_to",
+    "weight": 0.8,
+    "evidence_ref": {
+      "source_table": "ai_embed_run",
+      "source_id": "run_20261119_01"
+    },
+    "confidence": 0.78,
+    "origin": "ai",
+    "valid_from": "2026-11-19T03:00:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_047",
+    "org_id": "org_demo01",
+    "source_id": "industry_tag_002",
+    "target_id": "industry_tag_003",
+    "edge_type": "similar_to",
+    "weight": 0.45,
+    "evidence_ref": {
+      "source_table": "ai_embed_run",
+      "source_id": "run_20261119_01"
+    },
+    "confidence": 0.6,
+    "origin": "ai",
+    "valid_from": "2026-11-19T03:00:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_048",
+    "org_id": "org_demo01",
+    "source_id": "expert_001",
+    "target_id": "expert_002",
+    "edge_type": "similar_to",
+    "weight": 0.7,
+    "evidence_ref": {
+      "source_table": "ai_embed_run",
+      "source_id": "run_20261119_02"
+    },
+    "confidence": 0.62,
+    "origin": "ai",
+    "valid_from": "2026-11-19T03:20:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_049",
+    "org_id": "org_demo01",
+    "source_id": "capability_003",
+    "target_id": "capability_002",
+    "edge_type": "similar_to",
+    "weight": 0.3,
+    "evidence_ref": {
+      "source_table": "ai_embed_run",
+      "source_id": "run_20261119_02"
+    },
+    "confidence": 0.41,
+    "origin": "ai",
+    "valid_from": "2026-11-19T03:20:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  },
+  {
+    "id": "e_050",
+    "org_id": "org_demo01",
+    "source_id": "demand_001",
+    "target_id": "demand_003",
+    "edge_type": "similar_to",
+    "weight": 0.25,
+    "evidence_ref": {
+      "source_table": "ai_embed_run",
+      "source_id": "run_20261119_03"
+    },
+    "confidence": 0.33,
+    "origin": "ai",
+    "valid_from": "2026-11-19T03:40:00+08:00",
+    "valid_to": null,
+    "visibility": "private",
+    "review_status": "pending",
+    "reviewed_by": null
+  }
+]
