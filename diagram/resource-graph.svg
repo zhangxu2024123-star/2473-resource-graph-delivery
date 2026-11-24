@@ -17,7 +17,7 @@
   <rect x="0" y="0" width="1600" height="1000" fill="#F8FAFC"/>
 
   <text x="60" y="62" font-size="26" font-weight="700" fill="#0F172A">资源图谱 · 节点与关系类型总览</text>
-  <text x="60" y="92" font-size="14" fill="#64748B">二期「资源图谱完整版」图模型 v1.0 ｜ 10 类节点 / 10 类关系 ｜ 示意用虚构数据，不代表真实会员信息</text>
+  <text x="60" y="92" font-size="14" fill="#64748B">二期「资源图谱完整版」图模型 v1.1 ｜ 10 类节点 / 10 类关系 ｜ 示意用虚构数据，不代表真实会员信息</text>
 
   <!-- ================= 边（先画，压在卡片下方） ================= -->
   <!-- attended: contact -> event -->
@@ -158,7 +158,7 @@
   <!-- 说明备注 -->
   <text x="470" y="776" font-size="12" fill="#64748B">会所不单独建边：company.site_id 已表达归属（见文档 §4.9）</text>
   <text x="1350" y="736" font-size="12" fill="#64748B">本期 10 类关系未覆盖政策节点，</text>
-  <text x="1350" y="756" font-size="12" fill="#64748B">v1.1 拟增 related_to（见文档 §9.2）</text>
+  <text x="1350" y="756" font-size="12" fill="#64748B">v1.2 拟增 related_to（见文档 §9.2）</text>
 
   <!-- ================= 图例 ================= -->
   <rect x="60" y="840" width="330" height="120" rx="12" fill="#FFFFFF" stroke="#E2E8F0"/>
@@ -176,7 +176,7 @@
   <!-- ================= 治理提示 ================= -->
   <rect x="960" y="840" width="610" height="120" rx="12" fill="#FFFBEB" stroke="#FCD34D"/>
   <text x="980" y="868" font-size="13" font-weight="700" fill="#92400E">治理约束（由 Schema 强制，不只是文档约定）</text>
-  <text x="980" y="892" font-size="12" fill="#78350F">origin=ai ⇒ review_status=pending ∧ reviewed_by=null ∧ visibility=private</text>
-  <text x="980" y="914" font-size="12" fill="#78350F">人工确认前：不进会员端检索、不进推荐、不对外发送；确认后 origin 改为 human</text>
+  <text x="980" y="892" font-size="12" fill="#78350F">origin=ai → review_status=pending、reviewed_by=null、visibility=private</text>
+  <text x="980" y="914" font-size="12" fill="#78350F">确认前不进会员端检索/推荐/外发；确认后 origin 仍为 ai，仅写 review_status=approved</text>
   <text x="980" y="936" font-size="12" fill="#78350F">边可见性取两端更严一侧（private &gt; site &gt; org）；图模型不含任何金额字段</text>
 </svg>
