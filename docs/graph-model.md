@@ -4,7 +4,7 @@
 |---|---|
 | 所属工单 | 【S6-PLAN-009】会员空间平台 · 资源图谱完整版：节点与关系类型定义草案 |
 | 所属阶段 | Stage vi 陪跑与二期第一批 · 模块：二期规划与新会所复制 |
-| 文档版本 | v1.0（对应 Schema `2020-12` v1.0） |
+| 文档版本 | v1.1（对应 Schema `2020-12` v1.1；v1.1 为返修版，变更见文末修订记录） |
 | 交付日期 | 2026-11-23 |
 | 交付物形态 | 本文档（Markdown + PDF）、两份 JSON Schema、30 节点 + 50 关系样例、校验脚本与实跑证据、关系示意图（SVG + PNG） |
 | 数据说明 | 全部样例均为虚构数据，企业名统一带「（虚构）」后缀，联系人为「张示例 / 李样例 / 王虚构」，不含任何真实企业、真实个人信息，不出现客户名称 |
@@ -37,18 +37,19 @@
 
 | 约定 | 内容 |
 |---|---|
-| 节点 ID | `<node_type>_<三位序号>`，如 `company_001`。前缀必须等于 `node_type`，由 Schema 强制（`then.properties.id.pattern`），避免「类型与 ID 不自洽」这类脏数据 |
-| 边 ID | `e_<三位序号>`。边可增删（重建时重整），**不进入对外引用**；对外一律只引用节点 ID |
+| 节点 ID | 落库一律 UUID v4（`id`），样例为便于阅读使用 `<node_type>_<三位序号>` 短码（如 `company_001`）。Schema 的 `id` 同时接受两种形态；短码形态还要求前缀等于 `node_type`（`then.properties.id.pattern`），避免「类型与 ID 不自洽」这类脏数据。短码另可写入可选的 `display_code` 列供工单、截图与文档引用 |
+| 边 ID | 落库 UUID v4；样例用 `e_<三位序号>` 短码。边可增删（重建时重整），**不进入对外引用**；对外一律只引用节点 ID |
 | 多租户 | 节点与边都必带 `org_id`；跨集团的边在写入前即被拒绝（校验脚本会检查两端 `org_id` 是否一致） |
-| 时间 | `valid_from` / `valid_to` 组成**半开区间** `[valid_from, valid_to)`；`valid_to` 为 `null` 表示当前仍有效 |
+| 统一字段 | 节点与边同层携带 `id`、`org_id`、`site_id`、`created_at`、`created_by`、`updated_at`、`deleted_at`，与业务表建表约定一致；`deleted_at` 非空即软删除，默认不参与图谱遍历 |
+| 时间 | `valid_from` / `valid_to` 组成**半开区间** `[valid_from, valid_to)`；两者都必填，`valid_to` 为 `null` 表示当前仍有效 |
 | 金额 | **图模型不含任何金额字段**。金额一律按业务主键回查业务接口，AI 不计算金额（见第 7.2 节） |
 | 数据 | 一律虚构；不出现客户名称；不使用真实个人信息 |
 
-> 样例中的短 ID（`company_001`）只为文档对照与人工阅读方便；实际落库时 `id` 按统一技术约定使用 UUID，短 ID 不进入生产数据。
+> 短码与 UUID 的关系：`id` 是唯一主键，生产数据写 UUID；样例用短码是为了让 30 节点 / 50 关系的对照表可读，短码同时写入 `display_code`。两种形态都在 Schema 的 `id` 约束内，因此样例与生产数据共用同一份契约，不存在「样例能过、上线报错」的落差。
 
 ### 1.4 文档与 Schema 的版本对应
 
-文档版本与两份 Schema 的版本一一对应，改动任一方都必须同步。本次交付：文档 `v1.0` ↔ `node.schema.json` / `edge.schema.json` 的 `$id` 均含 `v1`（见第 9 章）。
+文档版本与两份 Schema 的版本一一对应，改动任一方都必须同步。本次交付：文档 `v1.1` 与 `node.schema.json` / `edge.schema.json` 的 `$id` 均含 `v1`（见第 9 章）。
 
 ---
 
@@ -83,10 +84,15 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| `id` | string | 是 | 前缀 = node_type，见第 1.3 节 |
+| `id` | string（UUID 或短码） | 是 | 主键，落库 UUID v4；短码形态前缀 = node_type，见第 1.3 节 |
+| `display_code` | string | — | 可读短码（`company_001`），由文档 / 工单引用，不承担主键职责 |
 | `node_type` | enum(10) | 是 | 闭合枚举；新增类型须升版本 |
 | `org_id` | string | 是 | 集团 ID |
 | `site_id` | string \| null | 是 | 会所 ID；为 `null` 表示集团级节点，此时 `visibility` 必须为 `org`（Schema 强制） |
+| `created_at` | date-time | 是 | 统一字段：创建时间 |
+| `created_by` | string | 是 | 统一字段：创建者（user_id / agent_id / 系统作业名） |
+| `updated_at` | date-time | 是 | 统一字段：最后更新时间 |
+| `deleted_at` | date-time \| null | 是 | 统一字段：软删除时间；非空即软删除，默认不参与遍历与检索 |
 | `name` | string | 是 | 展示名；样例统一带「（虚构）」 |
 | `visibility` | enum(org/site/private) | 是 | 可见范围 |
 | `source_state` | enum(phase1/new_collection) | 是 | 一期可得 / 需新采集，见 3.3 |
@@ -98,8 +104,11 @@
 
 | 字段 | 类型 | 必填 | 取值 / 说明 |
 |---|---|---|---|
-| `id` | string | 是 | `e_001` 形式 |
+| `id` | string（UUID 或短码） | 是 | 主键，落库 UUID v4；样例为 `e_001` 短码 |
+| `display_code` | string | — | 可读短码，样例中与 `id` 同值 |
 | `org_id` | string | 是 | 必须与两端节点一致 |
+| `site_id` | string \| null | 是 | 统一字段：两端同属一个会所时取该会所；跨会所或集团级关系为 `null`（表示「不属于单一会所」，不是「无归属」），可见性仍按两端更严一侧继承 |
+| `created_at` / `created_by` / `updated_at` / `deleted_at` | 同节点 | 是 | 统一字段，语义与 3.1 一致；`deleted_at` 非空即软删除的边，默认不参与遍历 |
 | `source_id` | string | 是 | 起点节点 ID |
 | `target_id` | string | 是 | 终点节点 ID |
 | `edge_type` | enum(10) | 是 | 闭合枚举 |
@@ -108,15 +117,15 @@
 | `confidence` | number | 是 | 闭区间 `[0,1]` |
 | `origin` | enum | 是 | `human` / `rule` / `ai` |
 | `valid_from` | date-time | 是 | 区间左端点（含） |
-| `valid_to` | date-time \| null | — | 区间右端点（不含）；`null` 为长期有效 |
-| `visibility` | enum | 是 | `org` / `site` / `private`；取两端更严一侧，`ai` 边强制 `private` |
+| `valid_to` | date-time \| null | 是（可为 `null`） | 区间右端点（不含）；`null` 为长期有效。**必填**，缺字段即校验失败（见 10.4 第五个坏样例） |
+| `visibility` | enum | 是 | `org` / `site` / `private`；取两端更严一侧，`ai` 边在 `pending` / `rejected` 时强制 `private` |
 | `evidence_state` | enum | — | `live`（默认）/ `soft_deleted`；后者把 `confidence` 上限压到 0.5 |
-| `review_status` | enum | 条件 | `ai` 边必填且必须为 `pending`；人工确认后改 `approved` |
-| `reviewed_by` | string \| null | 条件 | `ai` 边必须为 `null` |
-| `reviewed_at` | date-time \| null | — | 复核时间 |
+| `review_status` | enum | 条件 | `origin=ai` 必填：`pending`（待复核）/ `approved`（人工确认）/ `rejected`（人工驳回），三值均可达 |
+| `reviewed_by` | string \| null | 条件 | `pending` 时必须为 `null`；`approved` / `rejected` 时必须为具体复核人 |
+| `reviewed_at` | date-time \| null | 条件 | `pending` 时为 `null`；`approved` / `rejected` 时为实际复核时间 |
 | `note` | string | — | 冲突裁决等人工备注 |
 
-> 工单原文列出的 10 个属性（source_id、target_id、edge_type、weight、evidence_ref、confidence、origin、valid_from、valid_to、visibility）全部保留且必填（`valid_to` 允许 `null`）。`id` 与 `org_id` 是为支持引用、多租户隔离与审计新增的运维字段，不替代任何原文属性。
+> 工单原文列出的 10 个属性（source_id、target_id、edge_type、weight、evidence_ref、confidence、origin、valid_from、valid_to、visibility）全部保留且**全部必填**（`valid_to` 允许 `null`）。`id`、`org_id` 与统一字段 `site_id` / `created_at` / `created_by` / `updated_at` / `deleted_at` 与业务表建表约定一致，同为必填；它们不替代任何原文属性。`display_code` 是可选的可读列。
 
 ### 3.3 来源状态：让「需新采集」可被机器判定
 
@@ -160,7 +169,7 @@
 
 **关键属性** `tag_code`（`^TAG-[A-Z]{2,6}-[0-9]{2}$`）、`tag_level`（1–3）。
 
-**一期来源** `tax_tag`：`code`、`name`、`level`。母子关系可用 `tax_tag_relation` 表达；本期用 `tag_level` 层级近似，v1.1 可增 `parent_of` 边（见第 9 章）。
+**一期来源** `tax_tag`：`code`、`name`、`level`。母子关系可用 `tax_tag_relation` 表达；本期用 `tag_level` 层级近似，v1.2 可增 `parent_of` 边（见第 9 章）。
 
 **样例** `industry_tag_002` 新能源 · `TAG-NEE-01` · level 1
 
@@ -204,7 +213,7 @@
 
 **关键属性** `stage`（qualifying / proposal / negotiation / won / lost）、`owner_role`（investment_advisor / member_manager / opportunity_manager）。
 
-**一期来源** `crm_opportunity`：`title`、`stage`、`owner_role`、`company_id`、`site_id`。**`estimated_amount_first_year` 等金额字段刻意不入图**（原因见 7.2）。
+**一期来源** `crm_opportunity`：`title`、`stage`、`owner_role`、`company_id`、`site_id`。**estimated_amount_first_year 等金额字段刻意不入图**（原因见 7.2）。
 
 **样例** `opportunity_001` 示例智造扩租洽谈 · negotiation · investment_advisor
 
@@ -278,14 +287,16 @@
 7. **tagged_with**：由标签中心同步，`origin=rule`、`weight=1.0`（分类确定性强）；人工调整的标签 `origin=human`（样例 `e_033`）。
 8. **involved_in**：一个商机可以关联多家企业（如联合方案），`e_036`/`e_037` 为同一企业参与两个商机。
 9. **suggested_match**：**只能由模型产生**，方向固定「能力 → 需求」，`origin=ai`、`visibility=private`、`review_status=pending`。人工确认后改 `origin=human` 才能进入会员端推荐。
-10. **similar_to**：只连同类型节点（标签↔标签、专家↔专家、能力↔能力、需求↔需求；Schema 用 `anyOf` 强制两端前缀一致），`origin=ai`，用于「你可能也感兴趣」的候选池，同样需复核。
+10. **similar_to**：只连同类型节点（标签与标签、专家与专家、能力与能力、需求与需求；Schema 用 `anyOf` 强制两端前缀一致），`origin=ai`，用于「你可能也感兴趣」的候选池，同样需复核。
 
 ### 5.3 一条完整的边样例
 
 ```json
 {
   "id": "e_024",
+  "display_code": "e_024",
   "org_id": "org_demo01",
+  "site_id": null,
   "source_id": "contact_001",
   "target_id": "contact_003",
   "edge_type": "introduced",
@@ -301,6 +312,10 @@
   "valid_to": null,
   "visibility": "site",
   "evidence_state": "soft_deleted",
+  "created_at": "2026-08-30T00:00:00+08:00",
+  "created_by": "seed_demo",
+  "updated_at": "2026-09-02T10:15:00+08:00",
+  "deleted_at": null,
   "note": "证据纪要已被软删除：边保留、confidence 降至 0.4 并列入复查清单。"
 }
 ```
@@ -363,24 +378,39 @@
   "if": { "properties": { "origin": { "const": "ai" } }, "required": ["origin"] },
   "then": {
     "required": ["review_status", "reviewed_by"],
-    "properties": {
-      "review_status": { "const": "pending" },
-      "reviewed_by": { "const": null },
-      "visibility": { "const": "private" }
-    }
+    "allOf": [
+      {
+        "if": { "properties": { "review_status": { "const": "pending" } }, "required": ["review_status"] },
+        "then": { "properties": { "reviewed_by": { "const": null }, "reviewed_at": { "type": "null" },
+                                  "visibility": { "const": "private" } } }
+      },
+      {
+        "if": { "properties": { "review_status": { "enum": ["approved", "rejected"] } }, "required": ["review_status"] },
+        "then": { "properties": { "reviewed_by": { "type": "string", "minLength": 1 },
+                                  "reviewed_at": { "type": "string", "format": "date-time" } } }
+      },
+      {
+        "if": { "properties": { "review_status": { "const": "rejected" } }, "required": ["review_status"] },
+        "then": { "properties": { "visibility": { "const": "private" } } }
+      }
+    ]
   }
 }
 ```
 
-三个条件同时成立才能通过校验：`review_status=pending`、`reviewed_by=null`、`visibility=private`。任缺一条即校验失败——这是「AI 关系未复核就展示给会员」这类事故的最后一道闸。
+`origin=ai` 的边必须带 `review_status`，并按状态分三种形态校验：`pending` 要求 `reviewed_by=null`、`reviewed_at=null`、`visibility=private`；`approved` / `rejected` 要求 `reviewed_by` 与 `reviewed_at` 都落到具体值；`rejected` 额外强制保持 `private`。任一形态不满足即校验失败——这是「AI 关系未复核就展示给会员」这类事故的最后一道闸。
+
+**origin 不因人工确认而改写**：人工确认的是「这条建议可以采信」，不是「这条关系由人创造」。把 `origin` 从 `ai` 改成 `human` 会抹掉「由模型提议」这一来源事实，后续既无法统计模型命中率，也无法回溯提示词与模型版本。因此正确做法是：`origin` 保持 `ai`，写 `review_status=approved` + `reviewed_by`，`visibility` 再按两端重新继承。
 
 **状态机**
 
 | 状态 | 谁可以进入 | 约束 | 去向 |
 |---|---|---|---|
-| `pending` | 模型产出时自动进入 | `visibility=private`、`reviewed_by=null`，不进会员端检索 / 推荐 / 外发 | 复核通过 → `approved`；复核驳回 → 丢弃该边（复核记录留档，见下行） |
-| `approved` | 仅人工复核可置 | `origin` 改为 `human`，写入 `reviewed_by` / `reviewed_at`，`visibility` 按两端重新继承 | 进入正常检索与推荐 |
-| 驳回 | 人工复核 | 边不落库；证据记录不删除，复核记录（人、时间、理由）留档 | 同一 `(source,target,edge_type)` 组合被驳回 3 次后，90 天内不再由模型重复提议（去噪） |
+| `pending` | 模型产出时自动进入 | `visibility=private`、`reviewed_by=null`、`reviewed_at=null`，不进会员端检索 / 推荐 / 外发 | 复核通过 → `approved`；复核驳回 → `rejected` |
+| `approved` | 仅人工复核可置 | `origin` 仍为 `ai`；`reviewed_by` / `reviewed_at` 必填；`visibility` 按两端重新继承 | 进入正常检索与推荐 |
+| `rejected` | 仅人工复核可置 | `origin` 仍为 `ai`；`reviewed_by` / `reviewed_at` 必填；`visibility` 强制 `private` | 边留档、不展示；证据记录不删除，便于复盘模型为何误判 |
+
+> `rejected` 是可达状态而不是摆设：它在样例集之外由复核动作产生，Schema 允许它存在并把它钉在 `private`。这样「驳回」不再等于「删行」，而是留下一条可审计的负样本记录。
 
 **人工确认前不得对外**：`visibility=private` 在读取侧等价于「仅创建者与授权人可见」，会员端检索接口在实现时必须叠加 `review_status='approved'` 过滤。两者是双保险：Schema 管写，接口管读。
 
@@ -445,7 +475,7 @@
 
 ### 9.2 新增一类关系的完整改动清单
 
-以「v1.1 新增 `related_to`（政策 → 企业/需求）」为例，共 6 处，缺一处都会留下不一致：
+以「v1.2 新增 `related_to`（政策 → 企业/需求）」为例，共 6 处，缺一处都会留下不一致：
 
 | # | 改动位置 | 具体动作 | 不改的后果 |
 |---|---|---|---|
@@ -454,13 +484,13 @@
 | 3 | 本文档第 5 章 | 总表加一行 + 新增一节（定义、端点、证据、默认 origin） | 文档与机器约束脱节 |
 | 4 | `diagram/resource-graph.svg` + PNG | 加一条 `policy → company` 的线并更新图例 | 示意图与定义不符 |
 | 5 | `data/edges.json` | 补 5 条样例（覆盖新类型），更新 `origin` 分布说明 | 覆盖矩阵不完整，AC1 抽查会失败 |
-| 6 | 版本号 | 文档与两份 Schema 改 `v1.1`，文档加修订记录 | 验收方无法判断拿到的是哪一版 |
+| 6 | 版本号 | 文档与两份 Schema 改 `v1.2`，文档加修订记录 | 验收方无法判断拿到的是哪一版 |
 
 **兼容性承诺**：枚举只增不改、`additionalProperties: false` 不变、不给既有类型新增必填字段——因此**老样例在新版本下仍然通过**。校验脚本可直接作为 CI 门禁（`python verify.py` 非 0 即阻断合并）。
 
 ### 9.3 本期已知缺口
 
-- `policy` 节点在本期 10 类关系中没有边类型（政策与企业的「适用」关系语义上属于 `related_to`，不在工单给定的 10 类之内）。这是有意留白，不擅自扩枚举；已在示意图上标注，待 v1.1 处理。
+- `policy` 节点在本期 10 类关系中没有边类型（政策与企业的「适用」关系语义上属于 `related_to`，不在工单给定的 10 类之内）。这是有意留白，不擅自扩枚举；已在示意图上标注，待后续版本处理。
 - `industry_tag` 的母子层级暂由 `tag_level` 近似，未建 `parent_of` 边。
 
 ---
@@ -507,11 +537,13 @@ python 3.13.14 / jsonschema 4.26.0
   rejected bad_2_weight_out_of_range.json: $.weight: 1.5 is greater than the maximum of 1
   rejected bad_3_ai_edge_visible_to_member.json: $.visibility: 'private' was expected
   rejected bad_4_amount_field.json: $: Additional properties are not allowed ('amount' was unexpected)
-4/4 correctly rejected
+  rejected bad_5_missing_valid_to.json: $: 'valid_to' is a required property
+  rejected bad_6_ai_approved_without_reviewer.json: $.reviewed_by: None is not of type 'string'
+6/6 correctly rejected
 RESULT: PASS
 ```
 
-四个坏样例分别对应：缺 `edge_type`、`weight` 越界、`origin=ai` 但 `visibility=org`（想绕过复核直接展示）、以及混入 `amount` 金额字段。第三个尤其关键——它证明「AI 关系不得对外」这条治理规则由机器执行，不依赖人的自觉；第四个则证明「金额不进图模型」是结构上的不可能，而不是纪律要求。
+六个坏样例分别对应：缺 `edge_type`、`weight` 越界、`origin=ai` 但 `visibility=org`（想绕过复核直接展示）、混入 `amount` 金额字段、缺 `valid_to`、以及 `review_status=approved` 却不写 `reviewed_by`（假装复核过）。第三与第六个最关键——它们证明「AI 关系不得对外」「复核必须留痕」这两条治理规则由机器执行，不依赖人的自觉；第四个证明「金额不进图模型」是结构上的不可能；第五个则把「`valid_to` 必填（可为 null）」从文档承诺变成校验事实。
 
 ### 10.5 失败信息怎么读
 
@@ -535,7 +567,7 @@ RESULT: PASS
 | 1. 节点类型不少于 10 种、关系类型不少于 10 种，每种都有定义、属性与示例 | 第 4 章（10 节）、第 5 章（总表 + 10 类判定规则 + 完整边样例）、`schema` 中的 enum、`data` 中的 30+50 条样例 | 数第 4/5 章节数；跑 `verify.py` 看 `node_type 10/10, edge_type 10/10` |
 | 2. 每种节点都写明一期来源表与字段，或标注「需新采集」 | 第 4 章每节「一期来源」+ 第 6 章映射总表 + `source_state`/`source_ref`/`collection_hint` 字段 | 跑 `verify.py` 看 `source coverage: phase1 18 / new_collection 12`；Schema 强制 `phase1` 必须有 `source_ref` |
 | 3. 30 个节点与 50 条关系的样例全部通过附带的 JSON Schema 校验 | `data/nodes.json`、`data/edges.json`、`schema/*.json`、`verify.py` | 按 10.2 复跑，输出 `30/30 valid`、`50/50 valid`、`RESULT: PASS` |
-| 4. 文档写明 `origin=ai` 的关系须经复核队列人工确认，确认前不对会员展示 | 第 7.1 节（状态机 + Schema 片段）、7.2（金额禁区）、Schema 的 `if/then`、10 条 ai 样例 | 跑 `verify.py` 看 `ai review queue: 10 pending, member-visible ai edges: 0`；跑 `--self-test` 看坏样例 3 与 4 被拒绝 |
+| 4. 文档写明 `origin=ai` 的关系须经复核队列人工确认，确认前不对会员展示 | 第 7.1 节（状态机 + Schema 片段）、7.2（金额禁区）、Schema 的 `if/then`、10 条 ai 样例 | 跑 `verify.py` 看 `ai review queue: 10 pending, member-visible ai edges: 0`；跑 `--self-test` 看坏样例 3、6 被拒绝（治理规则生效），4、5 被拒绝（金额禁区与 `valid_to` 必填） |
 
 ---
 
@@ -565,3 +597,4 @@ RESULT: PASS
 | 版本 | 日期 | 变更 |
 |---|---|---|
 | v1.0 | 2026-11-23 | 首版：10 节点 / 10 关系、两份 Schema、30+50 样例、校验脚本、示意图 |
+| v1.1 | 2026-11-24 | 返修：`valid_to` 列入必填（可为 null）；节点与边补齐统一字段（`site_id`、`created_at`、`created_by`、`updated_at`、`deleted_at`）并允许 `id` 为 UUID（短码移入 `display_code`）；`origin=ai` 人工确认后保持 `origin` 不变、改 `review_status=approved` 并写 `reviewed_by`，`rejected` 变为可达状态；自测坏样例 4 → 6；示意图字形修复 |
