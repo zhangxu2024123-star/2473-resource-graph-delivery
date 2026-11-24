@@ -3,5 +3,7 @@ python 3.13.14 / jsonschema 4.26.0
   rejected bad_2_weight_out_of_range.json: $.weight: 1.5 is greater than the maximum of 1
   rejected bad_3_ai_edge_visible_to_member.json: $.visibility: 'private' was expected
   rejected bad_4_amount_field.json: $: Additional properties are not allowed ('amount' was unexpected)
-4/4 correctly rejected
+  rejected bad_5_missing_valid_to.json: $: 'valid_to' is a required property
+  rejected bad_6_ai_approved_without_reviewer.json: $.reviewed_by: None is not of type 'string'
+6/6 correctly rejected
 RESULT: PASS
