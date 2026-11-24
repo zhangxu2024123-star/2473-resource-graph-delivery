@@ -4,17 +4,47 @@
   "title": "资源图谱 · 节点",
   "description": "二期资源图谱完整版的节点定义（draft 2020-12）。10 类 node_type 共用同一外壳，业务字段按 node_type 用 if/then 分支约束。契约要点：(1) id 前缀必须与 node_type 一致；(2) 每个节点必须声明 source_state，phase1 必须给出 source_ref，new_collection 不得给 source_ref，使「一期可得 / 需新采集」可被机器判定；(3) 图模型不含任何金额字段，AI 不产出金额。",
   "type": "object",
-  "required": ["id", "node_type", "org_id", "site_id", "name", "visibility", "source_state"],
+  "required": [
+    "id",
+    "node_type",
+    "org_id",
+    "site_id",
+    "name",
+    "visibility",
+    "source_state",
+    "created_at",
+    "created_by",
+    "updated_at",
+    "deleted_at"
+  ],
   "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
-      "description": "节点 ID，形如 <node_type>_<三位序号>，前缀必须等于 node_type。"
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z_]*_[0-9]{3}$"
+        },
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        }
+      ],
+      "description": "节点主键。落库一律 UUID v4；样例为便于阅读使用 <node_type>_<三位序号> 短码，两种形态都在本约束内，前缀与 node_type 的一致性见下方 if/then 分支。"
     },
     "node_type": {
       "type": "string",
-      "enum": ["company", "contact", "industry_tag", "capability", "demand", "event", "opportunity", "expert", "site", "policy"],
+      "enum": [
+        "company",
+        "contact",
+        "industry_tag",
+        "capability",
+        "demand",
+        "event",
+        "opportunity",
+        "expert",
+        "site",
+        "policy"
+      ],
       "description": "节点类型，10 类闭合枚举；新增类型须同步升级 Schema 与文档版本号。"
     },
     "org_id": {
@@ -24,7 +54,10 @@
       "description": "集团 ID，多租户隔离边界。"
     },
     "site_id": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "maxLength": 64,
       "description": "会所 ID。集团级节点（如公开政策）为 null，此时 visibility 必须为 org。"
     },
@@ -36,7 +69,11 @@
     },
     "visibility": {
       "type": "string",
-      "enum": ["org", "site", "private"],
+      "enum": [
+        "org",
+        "site",
+        "private"
+      ],
       "description": "可见范围。org=集团内可见，site=仅本会所，private=仅创建者与授权人。边的可见性取两端更严的一侧（private > site > org），见文档第 7.3 节。"
     },
     "summary": {
@@ -46,7 +83,10 @@
     },
     "source_state": {
       "type": "string",
-      "enum": ["phase1", "new_collection"],
+      "enum": [
+        "phase1",
+        "new_collection"
+      ],
       "description": "phase1=可由一期已有表字段直接生成；new_collection=一期无来源，需新采集。"
     },
     "source_ref": {
@@ -62,17 +102,29 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "$ref": "#/$defs/nodeId" },
+      "items": {
+        "$ref": "#/$defs/nodeId"
+      },
       "description": "关联的产业标签节点 ID（company、demand 使用）。"
     },
     "member_level": {
       "type": "string",
-      "enum": ["founding", "standard", "premium", "strategic"],
+      "enum": [
+        "founding",
+        "standard",
+        "premium",
+        "strategic"
+      ],
       "description": "会员档位（company）。"
     },
     "lifecycle_stage": {
       "type": "string",
-      "enum": ["prospect", "active", "renewing", "churned"],
+      "enum": [
+        "prospect",
+        "active",
+        "renewing",
+        "churned"
+      ],
       "description": "会员生命周期阶段（company）。"
     },
     "primary_company_id": {
@@ -91,27 +143,49 @@
     },
     "tag_level": {
       "type": "integer",
-      "enum": [1, 2, 3],
+      "enum": [
+        1,
+        2,
+        3
+      ],
       "description": "标签层级，1 为一级产业（industry_tag）。"
     },
     "capability_type": {
       "type": "string",
-      "enum": ["product", "service", "solution"],
+      "enum": [
+        "product",
+        "service",
+        "solution"
+      ],
       "description": "能力形态：产品 / 服务 / 整体方案（capability）。"
     },
     "maturity": {
       "type": "string",
-      "enum": ["concept", "pilot", "ga"],
+      "enum": [
+        "concept",
+        "pilot",
+        "ga"
+      ],
       "description": "成熟度：概念 / 试点 / 已量产或已交付（capability）。"
     },
     "demand_type": {
       "type": "string",
-      "enum": ["procurement", "cooperation", "talent", "space", "other"],
+      "enum": [
+        "procurement",
+        "cooperation",
+        "talent",
+        "space",
+        "other"
+      ],
       "description": "需求类型（demand）。"
     },
     "urgency": {
       "type": "string",
-      "enum": ["high", "medium", "low"],
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
       "description": "紧迫度（demand）。"
     },
     "starts_at": {
@@ -126,17 +200,31 @@
     },
     "event_format": {
       "type": "string",
-      "enum": ["offline", "online", "hybrid"],
+      "enum": [
+        "offline",
+        "online",
+        "hybrid"
+      ],
       "description": "活动形式（event）。"
     },
     "stage": {
       "type": "string",
-      "enum": ["qualifying", "proposal", "negotiation", "won", "lost"],
+      "enum": [
+        "qualifying",
+        "proposal",
+        "negotiation",
+        "won",
+        "lost"
+      ],
       "description": "商机阶段（opportunity）。金额不在图模型中，由业务接口按 id 回查。"
     },
     "owner_role": {
       "type": "string",
-      "enum": ["investment_advisor", "member_manager", "opportunity_manager"],
+      "enum": [
+        "investment_advisor",
+        "member_manager",
+        "opportunity_manager"
+      ],
       "description": "商机归属岗位角色（opportunity）。"
     },
     "expertise_areas": {
@@ -144,12 +232,20 @@
       "minItems": 1,
       "maxItems": 5,
       "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1, "maxLength": 40 },
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
       "description": "专长领域（expert）。"
     },
     "availability": {
       "type": "string",
-      "enum": ["open", "limited", "closed"],
+      "enum": [
+        "open",
+        "limited",
+        "closed"
+      ],
       "description": "可对接状态（expert）。"
     },
     "site_code": {
@@ -176,101 +272,332 @@
       "type": "string",
       "format": "date",
       "description": "政策生效日期（policy）。"
+    },
+    "display_code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "description": "可读短码（可选列）。样例里与 id 同值；生产数据可用于工单、截图、文档引用，不承担主键职责。"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间（统一字段）。样例统一取虚构时间，不与真实业务时间关联。"
+    },
+    "created_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "创建者标识（统一字段）：写入者的 user_id / agent_id / 系统作业名。"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最后更新时间（统一字段），任何字段变更都要刷新。"
+    },
+    "deleted_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "软删除时间（统一字段）。null 表示未删除；非 null 的记录默认不参与查询与图谱遍历，但保留以便追溯。"
     }
   },
   "allOf": [
     {
-      "if": { "required": ["source_state"], "properties": { "source_state": { "const": "phase1" } } },
-      "then": { "required": ["source_ref"] },
+      "if": {
+        "required": [
+          "source_state"
+        ],
+        "properties": {
+          "source_state": {
+            "const": "phase1"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "source_ref"
+        ]
+      },
       "else": {
-        "required": ["collection_hint"],
-        "not": { "required": ["source_ref"] }
+        "required": [
+          "collection_hint"
+        ],
+        "not": {
+          "required": [
+            "source_ref"
+          ]
+        }
       }
     },
     {
-      "if": { "required": ["site_id"], "properties": { "site_id": { "type": "null" } } },
-      "then": { "properties": { "visibility": { "const": "org" } } }
-    },
-    {
-      "if": { "properties": { "node_type": { "const": "company" } }, "required": ["node_type"] },
+      "if": {
+        "required": [
+          "site_id"
+        ],
+        "properties": {
+          "site_id": {
+            "type": "null"
+          }
+        }
+      },
       "then": {
-        "required": ["industry_tag_ids", "member_level", "lifecycle_stage"],
-        "properties": { "id": { "pattern": "^company_[0-9]{3}$" } }
+        "properties": {
+          "visibility": {
+            "const": "org"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "contact" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "company"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["primary_company_id", "job_title"],
-        "properties": { "id": { "pattern": "^contact_[0-9]{3}$" } }
+        "required": [
+          "industry_tag_ids",
+          "member_level",
+          "lifecycle_stage"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "industry_tag" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "contact"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["tag_code", "tag_level"],
-        "properties": { "id": { "pattern": "^industry_tag_[0-9]{3}$" } }
+        "required": [
+          "primary_company_id",
+          "job_title"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "capability" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "industry_tag"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["capability_type", "maturity"],
-        "properties": { "id": { "pattern": "^capability_[0-9]{3}$" } }
+        "required": [
+          "tag_code",
+          "tag_level"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(industry_tag_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "demand" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "capability"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["demand_type", "urgency", "industry_tag_ids"],
-        "properties": { "id": { "pattern": "^demand_[0-9]{3}$" } }
+        "required": [
+          "capability_type",
+          "maturity"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(capability_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "event" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "demand"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["starts_at", "ends_at", "event_format"],
-        "properties": { "id": { "pattern": "^event_[0-9]{3}$" } }
+        "required": [
+          "demand_type",
+          "urgency",
+          "industry_tag_ids"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(demand_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "opportunity" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "event"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["stage", "owner_role"],
-        "properties": { "id": { "pattern": "^opportunity_[0-9]{3}$" } }
+        "required": [
+          "starts_at",
+          "ends_at",
+          "event_format"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(event_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "expert" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "opportunity"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["expertise_areas", "availability"],
-        "properties": { "id": { "pattern": "^expert_[0-9]{3}$" } }
+        "required": [
+          "stage",
+          "owner_role"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(opportunity_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "site" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "expert"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["site_code", "city"],
-        "properties": { "id": { "pattern": "^site_[0-9]{3}$" } }
+        "required": [
+          "expertise_areas",
+          "availability"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(expert_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     },
     {
-      "if": { "properties": { "node_type": { "const": "policy" } }, "required": ["node_type"] },
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "site"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
       "then": {
-        "required": ["issuing_authority", "policy_no", "effective_from"],
-        "properties": { "id": { "pattern": "^policy_[0-9]{3}$" } }
+        "required": [
+          "site_code",
+          "city"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(site_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "node_type": {
+            "const": "policy"
+          }
+        },
+        "required": [
+          "node_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "issuing_authority",
+          "policy_no",
+          "effective_from"
+        ],
+        "properties": {
+          "id": {
+            "pattern": "^(policy_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
       }
     }
   ],
   "$defs": {
     "nodeId": {
       "type": "string",
-      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "pattern": "^([a-z][a-z_]*_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
       "description": "指向另一节点的 ID。"
     },
     "sourceRef": {
       "type": "object",
-      "required": ["source_table", "source_id", "source_fields"],
+      "required": [
+        "source_table",
+        "source_id",
+        "source_fields"
+      ],
       "additionalProperties": false,
       "properties": {
         "source_table": {
@@ -288,7 +615,10 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
           "description": "生成本节点用到的字段名列表。"
         }
       }
