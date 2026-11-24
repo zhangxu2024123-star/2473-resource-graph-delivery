@@ -2,15 +2,40 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://graph.internal/member-space/v1/edge.schema.json",
   "title": "资源图谱 · 关系（边）",
-  "description": "二期资源图谱完整版的关系定义（draft 2020-12）。契约要点：(1) 10 类 edge_type 闭合枚举，并用 if/then 约束端点类型；(2) origin=ai 的边必须同时满足 review_status=pending、reviewed_by=null、visibility=private，三者缺一即校验失败——治理规则写进 Schema 而不只是文档；(3) evidence_state=soft_deleted 时 confidence 上限被强制压到 0.5；(4) 图模型不含金额字段。",
+  "description": "二期资源图谱完整版的关系定义（draft 2020-12）。契约要点：(1) 10 类 edge_type 闭合枚举，并用 if/then 约束端点类型；(2) 统一字段（id/org_id/site_id/created_at/created_by/updated_at/deleted_at）与业务属性同层，id 落库为 UUID、样例可用短码；(3) origin=ai 的边必须带 review_status：pending 时 reviewed_by 为 null 且 visibility 强制 private，approved 时 reviewed_by 必填且 origin 仍为 ai，rejected 时保持 private——治理规则写进 Schema 而不只是文档；(4) valid_to 必填（可为 null），与 valid_from 构成半开区间；(5) evidence_state=soft_deleted 时 confidence 上限被强制压到 0.5；(6) 图模型不含金额字段。",
   "type": "object",
-  "required": ["id", "org_id", "source_id", "target_id", "edge_type", "weight", "evidence_ref", "confidence", "origin", "valid_from", "visibility"],
+  "required": [
+    "id",
+    "org_id",
+    "source_id",
+    "target_id",
+    "edge_type",
+    "weight",
+    "evidence_ref",
+    "confidence",
+    "origin",
+    "valid_from",
+    "visibility",
+    "valid_to",
+    "site_id",
+    "created_at",
+    "created_by",
+    "updated_at",
+    "deleted_at"
+  ],
   "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^e_[0-9]{3}$",
-      "description": "边 ID，形如 e_001。边可增删（重建图谱时重整），不进入对外引用，对外只引用节点 ID。"
+      "anyOf": [
+        {
+          "pattern": "^e_[0-9]{3}$"
+        },
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        }
+      ],
+      "description": "边主键。落库 UUID v4；样例用 e_NNN 短码。边可增删（重建图谱时重整），对外只引用节点 ID。"
     },
     "org_id": {
       "type": "string",
@@ -28,7 +53,18 @@
     },
     "edge_type": {
       "type": "string",
-      "enum": ["works_at", "provides", "needs", "attended", "introduced", "partnered", "tagged_with", "involved_in", "suggested_match", "similar_to"],
+      "enum": [
+        "works_at",
+        "provides",
+        "needs",
+        "attended",
+        "introduced",
+        "partnered",
+        "tagged_with",
+        "involved_in",
+        "suggested_match",
+        "similar_to"
+      ],
       "description": "关系类型，10 类闭合枚举。新增类型须同步升级 Schema 与文档版本号。"
     },
     "weight": {
@@ -49,170 +85,550 @@
     },
     "origin": {
       "type": "string",
-      "enum": ["human", "rule", "ai"],
-      "description": "关系来源：human=人工录入或人工确认，rule=规则推导，ai=模型建议。"
+      "enum": [
+        "human",
+        "rule",
+        "ai"
+      ],
+      "description": "关系来源：human=人工录入，rule=规则推导，ai=模型建议。人工确认 AI 建议后 origin 仍为 ai，改 review_status=approved 并写 reviewed_by，以保留「由 AI 提议」这一来源事实。"
     },
     "valid_from": {
       "type": "string",
       "format": "date-time",
-      "description": "生效时间，半开区间 [valid_from, valid_to) 的左端点。"
+      "description": "生效时间，必填。半开区间 [valid_from, valid_to) 的左端点。"
     },
     "valid_to": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "date-time",
-      "description": "失效时间，可空；null 表示当前仍有效。右端点不包含在本区间内。"
+      "description": "失效时间，必填但可为 null；null 表示当前仍有效。半开区间 [valid_from, valid_to) 的右端点，不包含在本区间内。"
     },
     "visibility": {
       "type": "string",
-      "enum": ["org", "site", "private"],
+      "enum": [
+        "org",
+        "site",
+        "private"
+      ],
       "description": "边的可见范围。写入时应取两端节点更严的一侧（private > site > org）；origin=ai 时强制 private。"
     },
     "evidence_state": {
       "type": "string",
-      "enum": ["live", "soft_deleted"],
+      "enum": [
+        "live",
+        "soft_deleted"
+      ],
       "default": "live",
       "description": "证据记录状态。soft_deleted 表示 evidence_ref 指向的记录 deleted_at 非空，此时 confidence 上限 0.5 且边进入复查清单。"
     },
     "review_status": {
       "type": "string",
-      "enum": ["pending", "approved", "rejected"],
-      "description": "复核状态。仅 origin=ai 的边需要，且必须为 pending；人工确认后 origin 改 human、review_status 改 approved。"
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "description": "复核状态。三值均可达：pending=待复核（origin=ai 的初始态，此时 reviewed_by 必须为 null、visibility 必须 private）；approved=人工确认通过（origin 保持 ai，reviewed_by 必填，可按可见性规则展示）；rejected=人工驳回（reviewed_by 必填，visibility 保持 private，边留档不展示）。origin=human/rule 时该字段可省略，若出现只能是 approved。"
     },
     "reviewed_by": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "maxLength": 64,
-      "description": "复核人。origin=ai 时必须为 null。"
+      "description": "复核人。review_status=pending 时必须为 null；approved / rejected 时必须为具体复核人标识。"
     },
     "reviewed_at": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "date-time",
-      "description": "复核时间。origin=ai 时通常为 null。"
+      "description": "复核时间。pending 时为 null；approved / rejected 时为实际复核时间。"
     },
     "note": {
       "type": "string",
       "maxLength": 300,
       "description": "备注，用于记录冲突裁决等人工说明。"
+    },
+    "display_code": {
+      "type": "string",
+      "pattern": "^e_[0-9]{3}$",
+      "description": "可读短码（可选列），样例中与 id 同值。"
+    },
+    "site_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 64,
+      "description": "会所 ID（统一字段）。两端节点同属一个会所时取该会所；跨会所或集团级关系为 null。为 null 时不表示「无归属」，而是「不属于单一会所」，可见性按两端更严一侧继承。"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "创建时间（统一字段）。样例统一取虚构时间，不与真实业务时间关联。"
+    },
+    "created_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "创建者标识（统一字段）：写入者的 user_id / agent_id / 系统作业名。"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最后更新时间（统一字段），任何字段变更都要刷新。"
+    },
+    "deleted_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "软删除时间（统一字段）。null 表示未删除；非 null 的记录默认不参与查询与图谱遍历，但保留以便追溯。"
     }
   },
   "allOf": [
     {
-      "if": { "required": ["origin"], "properties": { "origin": { "const": "ai" } } },
-      "then": {
-        "required": ["review_status", "reviewed_by"],
+      "if": {
+        "required": [
+          "origin"
+        ],
         "properties": {
-          "review_status": { "const": "pending" },
-          "reviewed_by": { "const": null },
-          "visibility": { "const": "private" }
+          "origin": {
+            "const": "ai"
+          }
         }
+      },
+      "then": {
+        "required": [
+          "review_status",
+          "reviewed_by"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "review_status": {
+                  "const": "pending"
+                }
+              },
+              "required": [
+                "review_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reviewed_by": {
+                  "const": null
+                },
+                "reviewed_at": {
+                  "type": "null"
+                },
+                "visibility": {
+                  "const": "private"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "review_status": {
+                  "enum": [
+                    "approved",
+                    "rejected"
+                  ]
+                }
+              },
+              "required": [
+                "review_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reviewed_by": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reviewed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "review_status": {
+                  "const": "rejected"
+                }
+              },
+              "required": [
+                "review_status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "visibility": {
+                  "const": "private"
+                }
+              }
+            }
+          }
+        ]
       },
       "else": {
         "properties": {
-          "review_status": { "enum": ["approved"] }
+          "review_status": {
+            "enum": [
+              "approved"
+            ]
+          },
+          "reviewed_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
     {
-      "if": { "properties": { "evidence_state": { "const": "soft_deleted" } }, "required": ["evidence_state"] },
-      "then": {
-        "properties": { "confidence": { "maximum": 0.5 } }
-      }
-    },
-    {
-      "if": { "properties": { "edge_type": { "const": "works_at" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "evidence_state": {
+            "const": "soft_deleted"
+          }
+        },
+        "required": [
+          "evidence_state"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^contact_[0-9]{3}$" },
-          "target_id": { "pattern": "^company_[0-9]{3}$" }
+          "confidence": {
+            "maximum": 0.5
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "provides" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "works_at"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^company_[0-9]{3}$" },
-          "target_id": { "pattern": "^capability_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "needs" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "provides"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^company_[0-9]{3}$" },
-          "target_id": { "pattern": "^demand_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(capability_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "attended" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "needs"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^(contact|company)_[0-9]{3}$" },
-          "target_id": { "pattern": "^event_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(demand_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "introduced" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "attended"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^contact_[0-9]{3}$" },
-          "target_id": { "pattern": "^contact_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(contact|company)_[0-9]{3}$"
+          },
+          "target_id": {
+            "pattern": "^(event_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "partnered" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "introduced"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^company_[0-9]{3}$" },
-          "target_id": { "pattern": "^company_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "tagged_with" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "partnered"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^company_[0-9]{3}$" },
-          "target_id": { "pattern": "^industry_tag_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "involved_in" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "tagged_with"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^company_[0-9]{3}$" },
-          "target_id": { "pattern": "^opportunity_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(industry_tag_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "suggested_match" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "involved_in"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "properties": {
-          "source_id": { "pattern": "^capability_[0-9]{3}$" },
-          "target_id": { "pattern": "^demand_[0-9]{3}$" }
+          "source_id": {
+            "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(opportunity_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
         }
       }
     },
     {
-      "if": { "properties": { "edge_type": { "const": "similar_to" } }, "required": ["edge_type"] },
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "suggested_match"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source_id": {
+            "pattern": "^(capability_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          },
+          "target_id": {
+            "pattern": "^(demand_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "edge_type": {
+            "const": "similar_to"
+          }
+        },
+        "required": [
+          "edge_type"
+        ]
+      },
       "then": {
         "description": "similar_to 只允许连两端同类型的节点（company↔company … policy↔policy）。",
         "anyOf": [
-          { "properties": { "source_id": { "pattern": "^company_[0-9]{3}$" }, "target_id": { "pattern": "^company_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^contact_[0-9]{3}$" }, "target_id": { "pattern": "^contact_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^industry_tag_[0-9]{3}$" }, "target_id": { "pattern": "^industry_tag_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^capability_[0-9]{3}$" }, "target_id": { "pattern": "^capability_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^demand_[0-9]{3}$" }, "target_id": { "pattern": "^demand_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^event_[0-9]{3}$" }, "target_id": { "pattern": "^event_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^opportunity_[0-9]{3}$" }, "target_id": { "pattern": "^opportunity_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^expert_[0-9]{3}$" }, "target_id": { "pattern": "^expert_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^site_[0-9]{3}$" }, "target_id": { "pattern": "^site_[0-9]{3}$" } } },
-          { "properties": { "source_id": { "pattern": "^policy_[0-9]{3}$" }, "target_id": { "pattern": "^policy_[0-9]{3}$" } } }
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(company_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(contact_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(industry_tag_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(industry_tag_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(capability_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(capability_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(demand_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(demand_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(event_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(event_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(opportunity_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(opportunity_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(expert_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(expert_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(site_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(site_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source_id": {
+                "pattern": "^(policy_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              },
+              "target_id": {
+                "pattern": "^(policy_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$"
+              }
+            }
+          }
         ]
       }
     }
@@ -220,12 +636,15 @@
   "$defs": {
     "nodeId": {
       "type": "string",
-      "pattern": "^[a-z][a-z_]*_[0-9]{3}$",
+      "pattern": "^([a-z][a-z_]*_[0-9]{3}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$",
       "description": "节点 ID 引用。"
     },
     "evidenceRef": {
       "type": "object",
-      "required": ["source_table", "source_id"],
+      "required": [
+        "source_table",
+        "source_id"
+      ],
       "additionalProperties": false,
       "properties": {
         "source_table": {
