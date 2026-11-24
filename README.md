@@ -1,7 +1,7 @@
 # 资源图谱完整版 · 交付说明
 
 【S6-PLAN-009】会员空间平台 · 资源图谱完整版：节点与关系类型定义草案
-交付日期：2026-11-23 ｜ 版本：v1.0 ｜ 全部数据为虚构示例
+交付日期：2026-11-24 ｜ 版本：v1.1（返修版）｜ 全部数据为虚构示例
 
 ---
 
@@ -10,7 +10,7 @@
 ```bash
 pip install -r requirements.txt
 python verify.py                    # 期望 RESULT: PASS（30/30 节点、50/50 关系）
-python verify.py --self-test        # 期望 4/4 correctly rejected
+python verify.py --self-test        # 期望 6/6 correctly rejected
 ```
 
 跑完这两条就能确认三件事：样例确实通过 Schema；Schema 确实能挡住坏数据；治理规则不是纸面约定。
@@ -70,7 +70,7 @@ delivery_2473/
 
 ## 五、已知留白（不擅自扩范围）
 
-- `policy` 节点本期没有对应边类型（政策与企业的「适用」关系不在工单给定的 10 类内），已在示意图标注，v1.1 拟增 `related_to`，改动清单见文档 §9.2。
+- `policy` 节点本期没有对应边类型（政策与企业的「适用」关系不在工单给定的 10 类内），已在示意图标注，v1.2 拟增 `related_to`，改动清单见文档 §9.2。
 - `industry_tag` 的母子层级暂用 `tag_level` 近似，未建 `parent_of` 边。
 - 图数据库实现、ETL、复核队列界面、Figma 稿均不在本单范围。
 
@@ -95,7 +95,7 @@ delivery_2473/
 | 10 节点 / 10 关系，各有定义、属性、示例 | 文档第 4、5 章；`data/` | 数章节；脚本输出 `node_type 10/10, edge_type 10/10` |
 | 每种节点写明一期来源或「需新采集」 | 文档第 4 章各节 + 第 6 章；Schema 的 `source_state` | 脚本输出 `source coverage: phase1 18 / new_collection 12` |
 | 30 节点 + 50 关系通过 Schema 校验 | `data/`、`schema/`、`verify.py` | `python verify.py` → `30/30 valid`、`50/50 valid`、`RESULT: PASS` |
-| `origin=ai` 须复核、确认前不对外 | 文档 §7.1；Schema 的 `if/then` | 脚本输出 `ai review queue: 10 pending, member-visible ai edges: 0`；`--self-test` 4/4 |
+| `origin=ai` 须复核、确认前不对外 | 文档 §7.1；Schema 的 `if/then` | 脚本输出 `ai review queue: 10 pending, member-visible ai edges: 0`；`--self-test` 6/6 |
 
 ---
 
